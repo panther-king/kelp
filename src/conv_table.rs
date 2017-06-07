@@ -3,20 +3,18 @@ use std::collections::HashMap;
 use std::vec::Vec;
 
 /// ASCII(full-width)
-const FULL_ASCII: &str = "\
-    ！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠\
-    ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ\
-    ［＼］＾＿｀\
-    ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ\
-    ｛｜｝～　";
+const FULL_ASCII: &str = "！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠\
+                          ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ\
+                          ［＼］＾＿｀\
+                          ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ\
+                          ｛｜｝～　";
 
 /// ASCII(half-width)
-const HALF_ASCII: &str = "\
-    !\"#$%&'()*+,-./:;<=>?@\
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-    [\\]^_`\
-    abcdefghijklmnopqrstuvwxyz\
-    {|}~ ";
+const HALF_ASCII: &str = "!\"#$%&'()*+,-./:;<=>?@\
+                          ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+                          [\\]^_`\
+                          abcdefghijklmnopqrstuvwxyz\
+                          {|}~ ";
 
 /// Digits(full-width)
 const FULL_DIGIT: &str = "０１２３４５６７８９";
@@ -25,74 +23,69 @@ const FULL_DIGIT: &str = "０１２３４５６７８９";
 const HALF_DIGIT: &str = "0123456789";
 
 /// Hiragana(only full-width)
-const HIRAGANA: &str = "\
-    ぁあぃいぅうぇえぉお\
-    かがきぎくぐけげこご\
-    さざしじすずせぜそぞ\
-    ただちぢっつづてでとど\
-    なにぬねの\
-    はばぱひびぴふぶぷへべぺほぼぽ\
-    まみむめも\
-    ゃやゅゆょよ\
-    らりるれろ\
-    わをん\
-    ーゎゐゑゕゖゔゝゞ・「」。、";
+const HIRAGANA: &str = "ぁあぃいぅうぇえぉお\
+                        かがきぎくぐけげこご\
+                        さざしじすずせぜそぞ\
+                        ただちぢっつづてでとど\
+                        なにぬねの\
+                        はばぱひびぴふぶぷへべぺほぼぽ\
+                        まみむめも\
+                        ゃやゅゆょよ\
+                        らりるれろ\
+                        わをん\
+                        ーゎゐゑゕゖゔゝゞ・「」。、";
 
 /// Katakana(full-width)
-const FULL_KANA: &str = "\
-    ァアィイゥウェエォオ\
-    カガキギクグケゲコゴ\
-    サザシジスズセゼソゾ\
-    タダチヂッツヅテデトド\
-    ナニヌネノ\
-    ハバパヒビピフブプヘベペホボポ\
-    マミムメモ\
-    ャヤュユョヨ\
-    ラリルレロ\
-    ワヲン\
-    ーヮヰヱヵヶヴヽヾ・「」。、";
+const FULL_KANA: &str = "ァアィイゥウェエォオ\
+                         カガキギクグケゲコゴ\
+                         サザシジスズセゼソゾ\
+                         タダチヂッツヅテデトド\
+                         ナニヌネノ\
+                         ハバパヒビピフブプヘベペホボポ\
+                         マミムメモ\
+                         ャヤュユョヨ\
+                         ラリルレロ\
+                         ワヲン\
+                         ーヮヰヱヵヶヴヽヾ・「」。、";
 
 /// Katakana(half-width)
-const HALF_KANA: &str = "\
-    ｧｱｨｲｩｳｪｴｫｵ\
-    ｶｶﾞｷｷﾞｸｸﾞｹｹﾞｺｺﾞ\
-    ｻｻﾞｼｼﾞｽｽﾞｾｾﾞｿｿﾞ\
-    ﾀﾀﾞﾁﾁﾞｯﾂﾂﾞﾃﾃﾞﾄﾄﾞ\
-    ﾅﾆﾇﾈﾉ\
-    ﾊﾊﾞﾊﾟﾋﾋﾞﾋﾟﾌﾌﾞﾌﾟﾍﾍﾞﾍﾟﾎﾎﾞﾎﾟ\
-    ﾏﾐﾑﾒﾓ\
-    ﾔｬﾕｭﾖｮ\
-    ﾗﾘﾙﾚﾛ\
-    ﾜｦﾝ\
-    ｰヮヰヱヵヶｳﾞヽヾ･｢｣｡､";
+const HALF_KANA: &str = "ｧｱｨｲｩｳｪｴｫｵ\
+                         ｶｶﾞｷｷﾞｸｸﾞｹｹﾞｺｺﾞ\
+                         ｻｻﾞｼｼﾞｽｽﾞｾｾﾞｿｿﾞ\
+                         ﾀﾀﾞﾁﾁﾞｯﾂﾂﾞﾃﾃﾞﾄﾄﾞ\
+                         ﾅﾆﾇﾈﾉ\
+                         ﾊﾊﾞﾊﾟﾋﾋﾞﾋﾟﾌﾌﾞﾌﾟﾍﾍﾞﾍﾟﾎﾎﾞﾎﾟ\
+                         ﾏﾐﾑﾒﾓ\
+                         ﾔｬﾕｭﾖｮ\
+                         ﾗﾘﾙﾚﾛ\
+                         ﾜｦﾝ\
+                         ｰヮヰヱヵヶｳﾞヽヾ･｢｣｡､";
 
 /// Katakana(full-width, no voiced consonant marks)
-const FULL_KANA_SEION: &str = "\
-    ァアィイゥウェエォオ\
-    カキクケコ\
-    サシスセソ\
-    タチッツテト\
-    ナニヌネノ\
-    ハヒフヘホ\
-    マミムメモ\
-    ャヤュユョヨ\
-    ラリルレロ\
-    ワヲン\
-    ーヮヰヱヵヶヽヾ・「」。、";
+const FULL_KANA_SEION: &str = "ァアィイゥウェエォオ\
+                               カキクケコ\
+                               サシスセソ\
+                               タチッツテト\
+                               ナニヌネノ\
+                               ハヒフヘホ\
+                               マミムメモ\
+                               ャヤュユョヨ\
+                               ラリルレロ\
+                               ワヲン\
+                               ーヮヰヱヵヶヽヾ・「」。、";
 
 /// Katakana(half-width, no voiced consonant marks)
-const HALF_KANA_SEION: &str = "\
-    ｧｱｨｲｩｳｪｴｫｵ\
-    ｶｷｸｹｺ\
-    ｻｼｽｾｿ\
-    ﾀﾁｯﾂﾃﾄ\
-    ﾅﾆﾇﾈﾉ\
-    ﾊﾋﾌﾍﾎ\
-    ﾏﾐﾑﾒﾓ\
-    ｬﾔｭﾕｮﾖ\
-    ﾗﾘﾙﾚﾛ\
-    ﾜｦﾝ\
-    ｰヮヰヱヵヶヽヾ･｢｣｡､";
+const HALF_KANA_SEION: &str = "ｧｱｨｲｩｳｪｴｫｵ\
+                               ｶｷｸｹｺ\
+                               ｻｼｽｾｿ\
+                               ﾀﾁｯﾂﾃﾄ\
+                               ﾅﾆﾇﾈﾉ\
+                               ﾊﾋﾌﾍﾎ\
+                               ﾏﾐﾑﾒﾓ\
+                               ｬﾔｭﾕｮﾖ\
+                               ﾗﾘﾙﾚﾛ\
+                               ﾜｦﾝ\
+                               ｰヮヰヱヵヶヽヾ･｢｣｡､";
 
 /// Roman letters
 const HEPBURN: &str = "aiueoaiueon";
@@ -103,22 +96,6 @@ const HEPBURN_KANA: &str = "ぁぃぅぇぉあいうえおん";
 pub trait ConvTable {
     /// Generate a convert table
     fn table(&self) -> HashMap<u32, String>;
-}
-
-/// Generate a convert table.
-///
-/// HashMap's key is a code-point of character.
-/// HashMap's value is a string after conversion.
-fn conv_table(key: &str, value: &str) -> HashMap<u32, String> {
-    let keys: Vec<u32> = key.chars().map(|c| c as u32).collect();
-    let values: Vec<String> = value.chars().map(|s| s.to_string()).collect();
-    let mut table = HashMap::new();
-
-    for (k, v) in keys.into_iter().zip(values.into_iter()) {
-        table.insert(k, v);
-    }
-
-    table
 }
 
 /// Convert from full-width to half-width
@@ -262,6 +239,22 @@ impl ConvTable for HiraKana {
             HiraKana::KanaToHira => conv_table(&FULL_KANA, &HIRAGANA),
         }
     }
+}
+
+/// Generate a convert table.
+///
+/// HashMap's key is a code-point of character.
+/// HashMap's value is a string after conversion.
+fn conv_table(key: &str, value: &str) -> HashMap<u32, String> {
+    let keys: Vec<u32> = key.chars().map(|c| c as u32).collect();
+    let values: Vec<String> = value.chars().map(|s| s.to_string()).collect();
+    let mut table = HashMap::new();
+
+    for (k, v) in keys.into_iter().zip(values.into_iter()) {
+        table.insert(k, v);
+    }
+
+    table
 }
 
 #[cfg(test)]

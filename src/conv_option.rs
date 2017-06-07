@@ -91,28 +91,28 @@ mod tests {
     #[test]
     fn test_ascii() {
         let option = ConvOptionBuilder::new().build();
-        assert_eq!(false, option.convert_ascii());
+        assert!(!option.convert_ascii());
 
         let option = ConvOptionBuilder::new().ascii(true).build();
-        assert_eq!(true, option.convert_ascii());
+        assert!(option.convert_ascii());
     }
 
     #[test]
     fn test_digit() {
         let option = ConvOptionBuilder::new().build();
-        assert_eq!(false, option.convert_digit());
+        assert!(!option.convert_digit());
 
         let option = ConvOptionBuilder::new().digit(true).build();
-        assert_eq!(true, option.convert_digit());
+        assert!(option.convert_digit());
     }
 
     #[test]
     fn test_kana() {
         let option = ConvOptionBuilder::new().build();
-        assert_eq!(true, option.convert_kana());
+        assert!(option.convert_kana());
 
         let option = ConvOptionBuilder::new().kana(false).build();
-        assert_eq!(false, option.convert_kana());
+        assert!(!option.convert_kana());
     }
 
     #[test]
