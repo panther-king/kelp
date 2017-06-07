@@ -292,4 +292,134 @@ mod tests {
     fn test_half_kana() {
         assert_eq!(HALF_KANA.chars().count(), 120);
     }
+
+    #[test]
+    fn test_full_to_half_all() {
+        let table = FullToHalf::All.table();
+        assert_eq!(table.get(&65313).unwrap(), "A");
+        assert_eq!(table.get(&65296).unwrap(), "0");
+        assert_eq!(table.get(&12450).unwrap(), "ｱ");
+    }
+
+    #[test]
+    fn test_full_to_half_ascii() {
+        let table = FullToHalf::Ascii.table();
+        assert_eq!(table.get(&65313).unwrap(), "A");
+        assert!(table.get(&65296).is_none());
+        assert!(table.get(&12450).is_none());
+    }
+
+    #[test]
+    fn test_full_to_half_ascii_and_digits() {
+        let table = FullToHalf::AsciiAndDigits.table();
+        assert_eq!(table.get(&65313).unwrap(), "A");
+        assert_eq!(table.get(&65296).unwrap(), "0");
+        assert!(table.get(&12450).is_none());
+    }
+
+    #[test]
+    fn test_full_to_half_ascii_and_kana() {
+        let table = FullToHalf::AsciiAndKana.table();
+        assert_eq!(table.get(&65313).unwrap(), "A");
+        assert!(table.get(&65296).is_none());
+        assert_eq!(table.get(&12450).unwrap(), "ｱ");
+    }
+
+    #[test]
+    fn test_full_to_half_digits() {
+        let table = FullToHalf::Digits.table();
+        assert!(table.get(&65313).is_none());
+        assert_eq!(table.get(&65296).unwrap(), "0");
+        assert!(table.get(&12450).is_none());
+    }
+
+    #[test]
+    fn test_full_to_half_digits_and_kana() {
+        let table = FullToHalf::DigitsAndKana.table();
+        assert!(table.get(&65313).is_none());
+        assert_eq!(table.get(&65296).unwrap(), "0");
+        assert_eq!(table.get(&12450).unwrap(), "ｱ");
+    }
+
+    #[test]
+    fn test_full_to_half_kana() {
+        let table = FullToHalf::Kana.table();
+        assert!(table.get(&65313).is_none());
+        assert!(table.get(&65296).is_none());
+        assert_eq!(table.get(&12450).unwrap(), "ｱ");
+    }
+
+    #[test]
+    fn test_half_to_full_all() {
+        let table = HalfToFull::All.table();
+        assert_eq!(table.get(&66).unwrap(), "Ｂ");
+        assert_eq!(table.get(&49).unwrap(), "１");
+        assert_eq!(table.get(&65394).unwrap(), "イ");
+    }
+
+    #[test]
+    fn test_half_to_full_ascii() {
+        let table = HalfToFull::Ascii.table();
+        assert_eq!(table.get(&66).unwrap(), "Ｂ");
+        assert!(table.get(&49).is_none());
+        assert!(table.get(&65394).is_none());
+    }
+
+    #[test]
+    fn test_half_to_full_ascii_and_digits() {
+        let table = HalfToFull::AsciiAndDigits.table();
+        assert_eq!(table.get(&66).unwrap(), "Ｂ");
+        assert_eq!(table.get(&49).unwrap(), "１");
+        assert!(table.get(&65394).is_none());
+    }
+
+    #[test]
+    fn test_half_to_full_ascii_and_kana() {
+        let table = HalfToFull::AsciiAndKana.table();
+        assert_eq!(table.get(&66).unwrap(), "Ｂ");
+        assert!(table.get(&49).is_none());
+        assert_eq!(table.get(&65394).unwrap(), "イ");
+    }
+
+    #[test]
+    fn test_half_to_full_digits() {
+        let table = HalfToFull::Digits.table();
+        assert!(table.get(&66).is_none());
+        assert_eq!(table.get(&49).unwrap(), "１");
+        assert!(table.get(&65394).is_none());
+    }
+
+    #[test]
+    fn test_half_to_full_digits_and_kana() {
+        let table = HalfToFull::DigitsAndKana.table();
+        assert!(table.get(&66).is_none());
+        assert_eq!(table.get(&49).unwrap(), "１");
+        assert_eq!(table.get(&65394).unwrap(), "イ");
+    }
+
+    #[test]
+    fn test_half_to_full_kana() {
+        let table = HalfToFull::Kana.table();
+        assert!(table.get(&66).is_none());
+        assert!(table.get(&49).is_none());
+        assert_eq!(table.get(&65394).unwrap(), "イ");
+    }
+
+    #[test]
+    fn test_hira_kana_hira_to_half_kana() {
+        let table = HiraKana::HiraToHalfKana.table();
+        assert_eq!(table.get(&12354).unwrap(), "ｱ");
+    }
+
+    #[test]
+    fn test_hira_kana_hira_to_kana() {
+        let table = HiraKana::HiraToKana.table();
+        assert_eq!(table.get(&12356).unwrap(), "イ");
+    }
+
+    #[test]
+    fn test_hira_kana_kana_to_hira() {
+        let table = HiraKana::KanaToHira.table();
+        assert_eq!(table.get(&12454).unwrap(), "う");
+    }
 }
