@@ -241,6 +241,19 @@ impl ConvTable for HiraKana {
     }
 }
 
+pub fn exclude_table<T: ConvTable>(ignore: Vec<u32>, conv_table: T) -> HashMap<u32, String> {
+    let table = conv_table.table();
+    let mut excluded = HashMap::new();
+
+    for (k, v) in table.into_iter() {
+        if !ignore.contains(&k) {
+            excluded.insert(k, v);
+        }
+    }
+
+    excluded
+}
+
 /// Generate a convert table.
 ///
 /// HashMap's key is a code-point of character.
@@ -414,5 +427,13 @@ mod tests {
     fn test_hira_kana_kana_to_hira() {
         let table = HiraKana::KanaToHira.table();
         assert_eq!(table.get(&12454).unwrap(), "う");
+    }
+
+    #[test]
+    fn test_exclude_table() {
+        let ignore = vec!['あ' as u32];
+        let table = exclude_table(ignore, HiraKana::HiraToKana);
+        assert!(table.get(&12354).is_none());
+        assert!(table.get(&12355).is_some());
     }
 }

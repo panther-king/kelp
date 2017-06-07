@@ -26,12 +26,12 @@ impl<'a> ConvOption<'a> {
     }
 
     /// Ignore characters when convert
-    pub fn ignore_chars(&self) -> Option<Vec<char>> {
+    pub fn ignore_chars(&self) -> Option<Vec<u32>> {
         if self.ignore == "" {
             return None;
         }
 
-        Some(self.ignore.chars().collect())
+        Some(self.ignore.chars().map(|c| c as u32).collect())
     }
 }
 
