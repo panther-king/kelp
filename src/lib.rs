@@ -1,7 +1,11 @@
-mod conv_option;
+//! # kelp
+//!
+//! This is a porting from [jaconv(Python)](https://github.com/ikegami-yukino/jaconv).
+pub mod conv_option;
+
 mod conv_table;
 mod convert;
 
-pub use conv_option::ConvOptionBuilder;
 pub use convert::hira2kata;
+pub use convert::hira2hkata;
 pub use convert::kata2hira;

@@ -8,7 +8,7 @@ use conv_table::HiraKana;
 /// Convert from hiragana to full-witdh katakana
 ///
 /// ```
-/// use kelp::ConvOptionBuilder;
+/// use kelp::conv_option::ConvOptionBuilder;
 /// use kelp::hira2kata;
 ///
 /// let option = ConvOptionBuilder::new().build();
@@ -24,10 +24,29 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
     convert(text, table, option)
 }
 
+/// Convert from hiragana to half-width katakana
+///
+/// ```
+/// use kelp::conv_option::ConvOptionBuilder;
+/// use kelp::hira2hkata;
+///
+/// let option = ConvOptionBuilder::new().build();
+/// let converted = hira2hkata("あいうえお", option);
+/// assert_eq!("ｱｲｳｴｵ", converted);
+///
+/// let option = ConvOptionBuilder::new().ignore("がご").build();
+/// let converted = hira2hkata("がぎぐげご", option);
+/// assert_eq!("がｷﾞｸﾞｹﾞご", converted);
+/// ```
+pub fn hira2hkata(text: &str, option: ConvOption) -> String {
+    let table = HiraKana::HiraToHalfKana.to_table();
+    convert(text, table, option)
+}
+
 /// Convert from full-width katakana to hiragana
 ///
 /// ```
-/// use kelp::ConvOptionBuilder;
+/// use kelp::conv_option::ConvOptionBuilder;
 /// use kelp::kata2hira;
 ///
 /// let option = ConvOptionBuilder::new().build();
@@ -64,6 +83,13 @@ mod tests {
     use conv_option::ConvOptionBuilder;
     use super::*;
 
+    fn half_kana() -> &'static str {
+        "ｧｱｨｲｩｳｪｴｫｵｶｶﾞｷｷﾞｸｸﾞｹｹﾞｺｺﾞｻｻﾞｼｼﾞｽｽﾞｾｾﾞｿｿﾞ\
+         ﾀﾀﾞﾁﾁﾞｯﾂﾂﾞﾃﾃﾞﾄﾄﾞﾅﾆﾇﾈﾉﾊﾊﾞﾊﾟﾋﾋﾞﾋﾟﾌﾌﾞﾌﾟﾍﾍﾞ\
+         ﾍﾟﾎﾎﾞﾎﾟﾏﾐﾑﾒﾓｬﾔｭﾕｮﾖﾗﾘﾙﾚﾛﾜｦﾝｰヮヰヱヵヶｳﾞ\
+         ヽヾ･｢｣｡､"
+    }
+
     fn hiragana() -> &'static str {
         "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞ\
          ただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼ\
@@ -84,6 +110,14 @@ mod tests {
         let after = full_kana();
         let option = ConvOptionBuilder::new().build();
         assert_eq!(hira2kata(before, option), after);
+    }
+
+    #[test]
+    fn test_hira2hkata() {
+        let before = hiragana();
+        let after = half_kana();
+        let option = ConvOptionBuilder::new().build();
+        assert_eq!(hira2hkata(before, option), after);
     }
 
     #[test]
