@@ -3,39 +3,32 @@ use std::collections::HashMap;
 use std::vec::Vec;
 
 use conv_option::ConvOption;
-use conv_table::{ConvTable, HiraKana, exclude_table};
+use conv_table::HiraKana;
 
 /// Convert from hiragana to full-witdh katakana
 pub fn hira2kata(text: &str, option: ConvOption) -> String {
-    let table = match option.ignore_chars() {
-        Some(chars) => exclude_table(chars, HiraKana::HiraToKana),
-        None => HiraKana::HiraToKana.table(),
-    };
-    convert(text, table)
+    convert(text, HiraKana::HiraToKana.to_table(), option)
 }
 
 /// Convert from full-width katakana to hiragana
 pub fn kata2hira(text: &str, option: ConvOption) -> String {
-    let table = match option.ignore_chars() {
-        Some(chars) => exclude_table(chars, HiraKana::KanaToHira),
-        None => HiraKana::KanaToHira.table(),
-    };
-    convert(text, table)
+    convert(text, HiraKana::KanaToHira.to_table(), option)
 }
 
-/// Convert strings with conversion table
-fn convert(text: &str, table: HashMap<u32, String>) -> String {
+/// Convert strings refers conversion table and option settings
+fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> String {
+    let ignore: Vec<u32> = option.ignore_chars().into_iter().map(|c| c as u32).collect();
     let mut converted = Vec::new();
 
     for c in text.chars() {
         let ord = c as u32;
         match table.get(&ord) {
-            Some(s) => converted.push(s.to_string()),
-            None => converted.push(c.to_string()),
+            Some(s) if !ignore.contains(&ord) => converted.push(s.to_string()),
+            _ => converted.push(c.to_string()),
         }
     }
 
-    converted.into_iter().collect::<String>()
+    converted.join("").to_string()
 }
 
 #[cfg(test)]
