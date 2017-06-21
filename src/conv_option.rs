@@ -26,12 +26,8 @@ impl<'a> ConvOption<'a> {
     }
 
     /// Ignore characters when convert
-    pub fn ignore_chars(&self) -> Option<Vec<u32>> {
-        if self.ignore == "" {
-            return None;
-        }
-
-        Some(self.ignore.chars().map(|c| c as u32).collect())
+    pub fn ignore_chars(&self) -> Vec<char> {
+        self.ignore.chars().collect()
     }
 }
 
@@ -118,9 +114,9 @@ mod tests {
     #[test]
     fn test_ignore() {
         let option = ConvOptionBuilder::new().build();
-        assert!(option.ignore_chars().is_none());
+        assert_eq!(0, option.ignore_chars().len());
 
         let option = ConvOptionBuilder::new().ignore("ignore").build();
-        assert!(option.ignore_chars().is_some());
+        assert_eq!(6, option.ignore_chars().len());
     }
 }
