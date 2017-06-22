@@ -7,6 +7,8 @@ use conv_table::HiraKana;
 
 /// Convert from hiragana to full-witdh katakana
 ///
+/// # Example
+///
 /// ```
 /// use kelp::conv_option::ConvOptionBuilder;
 /// use kelp::hira2kata;
@@ -26,6 +28,8 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
 
 /// Convert from hiragana to half-width katakana
 ///
+/// # Example
+///
 /// ```
 /// use kelp::conv_option::ConvOptionBuilder;
 /// use kelp::hira2hkata;
@@ -44,6 +48,8 @@ pub fn hira2hkata(text: &str, option: ConvOption) -> String {
 }
 
 /// Convert from full-width katakana to hiragana
+///
+/// # Example
 ///
 /// ```
 /// use kelp::conv_option::ConvOptionBuilder;
