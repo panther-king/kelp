@@ -113,6 +113,13 @@ mod tests {
     }
 
     #[test]
+    fn test_hira2kata_with_ignore() {
+        let before = hiragana();
+        let option = ConvOptionBuilder::new().ignore(before).build();
+        assert_eq!(hira2kata(before, option), before);
+    }
+
+    #[test]
     fn test_hira2hkata() {
         let before = hiragana();
         let after = half_kana();
@@ -121,10 +128,24 @@ mod tests {
     }
 
     #[test]
+    fn test_hira2hkata_with_ignore() {
+        let before = hiragana();
+        let option = ConvOptionBuilder::new().ignore(before).build();
+        assert_eq!(hira2hkata(before, option), before);
+    }
+
+    #[test]
     fn test_kata2hira() {
         let before = full_kana();
         let after = hiragana();
         let option = ConvOptionBuilder::new().build();
         assert_eq!(kata2hira(before, option), after);
+    }
+
+    #[test]
+    fn test_kata2hira_with_ignore() {
+        let before = full_kana();
+        let option = ConvOptionBuilder::new().ignore(before).build();
+        assert_eq!(kata2hira(before, option), before);
     }
 }
