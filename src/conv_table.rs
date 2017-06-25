@@ -75,7 +75,7 @@ pub(crate) const HALF_KANA_SEION: [&str; 68] =
      "ﾜ", "ｦ", "ﾝ", "ｰ", "ヮ", "ヰ", "ヱ", "ヵ", "ヶ", "ヽ", "ヾ", "･", "｢",
      "｣", "｡", "､"];
 
-fn to_table(key: &Vec<&str>, value: &Vec<&str>) -> HashMap<u32, String> {
+fn to_table(key: Vec<&str>, value: Vec<&str>) -> HashMap<u32, String> {
     assert!(key.len() == value.len());
 
     let keys = key.join("").chars().map(|c| c as u32).collect::<Vec<u32>>();
@@ -111,26 +111,24 @@ impl FullToHalf {
     pub fn to_table(&self) -> HashMap<u32, String> {
         match *self {
             FullToHalf::All => {
-                to_table(&[&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA[..]].concat(),
-                         &[&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA[..]].concat())
+                to_table([&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA[..]].concat(),
+                         [&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA[..]].concat())
             }
-            FullToHalf::Ascii => to_table(&[&FULL_ASCII[..]].concat(), &[&HALF_ASCII[..]].concat()),
+            FullToHalf::Ascii => to_table([&FULL_ASCII[..]].concat(), [&HALF_ASCII[..]].concat()),
             FullToHalf::AsciiAndDigits => {
-                to_table(&[&FULL_ASCII[..], &FULL_DIGIT[..]].concat(),
-                         &[&HALF_ASCII[..], &HALF_DIGIT[..]].concat())
+                to_table([&FULL_ASCII[..], &FULL_DIGIT[..]].concat(),
+                         [&HALF_ASCII[..], &HALF_DIGIT[..]].concat())
             }
             FullToHalf::AsciiAndKana => {
-                to_table(&[&FULL_ASCII[..], &FULL_KANA[..]].concat(),
-                         &[&HALF_ASCII[..], &HALF_KANA[..]].concat())
+                to_table([&FULL_ASCII[..], &FULL_KANA[..]].concat(),
+                         [&HALF_ASCII[..], &HALF_KANA[..]].concat())
             }
-            FullToHalf::Digits => {
-                to_table(&[&FULL_DIGIT[..]].concat(), &[&HALF_DIGIT[..]].concat())
-            }
+            FullToHalf::Digits => to_table([&FULL_DIGIT[..]].concat(), [&HALF_DIGIT[..]].concat()),
             FullToHalf::DigitsAndKana => {
-                to_table(&[&FULL_DIGIT[..], &FULL_KANA[..]].concat(),
-                         &[&HALF_DIGIT[..], &HALF_KANA[..]].concat())
+                to_table([&FULL_DIGIT[..], &FULL_KANA[..]].concat(),
+                         [&HALF_DIGIT[..], &HALF_KANA[..]].concat())
             }
-            FullToHalf::Kana => to_table(&[&FULL_KANA[..]].concat(), &[&HALF_KANA[..]].concat()),
+            FullToHalf::Kana => to_table([&FULL_KANA[..]].concat(), [&HALF_KANA[..]].concat()),
         }
     }
 }
@@ -158,28 +156,26 @@ impl HalfToFull {
     pub fn to_table(&self) -> HashMap<u32, String> {
         match *self {
             HalfToFull::All => {
-                to_table(&[&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA_SEION[..]].concat(),
-                         &[&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA_SEION[..]].concat())
+                to_table([&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA_SEION[..]].concat(),
+                         [&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA_SEION[..]].concat())
             }
-            HalfToFull::Ascii => to_table(&[&HALF_ASCII[..]].concat(), &[&FULL_ASCII[..]].concat()),
+            HalfToFull::Ascii => to_table([&HALF_ASCII[..]].concat(), [&FULL_ASCII[..]].concat()),
             HalfToFull::AsciiAndDigits => {
-                to_table(&[&HALF_ASCII[..], &HALF_DIGIT[..]].concat(),
-                         &[&FULL_ASCII[..], &FULL_DIGIT[..]].concat())
+                to_table([&HALF_ASCII[..], &HALF_DIGIT[..]].concat(),
+                         [&FULL_ASCII[..], &FULL_DIGIT[..]].concat())
             }
             HalfToFull::AsciiAndKana => {
-                to_table(&[&HALF_ASCII[..], &HALF_KANA_SEION[..]].concat(),
-                         &[&FULL_ASCII[..], &FULL_KANA_SEION[..]].concat())
+                to_table([&HALF_ASCII[..], &HALF_KANA_SEION[..]].concat(),
+                         [&FULL_ASCII[..], &FULL_KANA_SEION[..]].concat())
             }
-            HalfToFull::Digits => {
-                to_table(&[&HALF_DIGIT[..]].concat(), &[&FULL_DIGIT[..]].concat())
-            }
+            HalfToFull::Digits => to_table([&HALF_DIGIT[..]].concat(), [&FULL_DIGIT[..]].concat()),
             HalfToFull::DigitsAndKana => {
-                to_table(&[&HALF_DIGIT[..], &HALF_KANA_SEION[..]].concat(),
-                         &[&FULL_DIGIT[..], &FULL_KANA_SEION[..]].concat())
+                to_table([&HALF_DIGIT[..], &HALF_KANA_SEION[..]].concat(),
+                         [&FULL_DIGIT[..], &FULL_KANA_SEION[..]].concat())
             }
             HalfToFull::Kana => {
-                to_table(&[&HALF_KANA_SEION[..]].concat(),
-                         &[&FULL_KANA_SEION[..]].concat())
+                to_table([&HALF_KANA_SEION[..]].concat(),
+                         [&FULL_KANA_SEION[..]].concat())
             }
         }
     }
@@ -200,10 +196,10 @@ impl HiraKana {
     pub fn to_table(&self) -> HashMap<u32, String> {
         match *self {
             HiraKana::HiraToHalfKana => {
-                to_table(&[&HIRAGANA[..]].concat(), &[&HALF_KANA[..]].concat())
+                to_table([&HIRAGANA[..]].concat(), [&HALF_KANA[..]].concat())
             }
-            HiraKana::HiraToKana => to_table(&[&HIRAGANA[..]].concat(), &[&FULL_KANA[..]].concat()),
-            HiraKana::KanaToHira => to_table(&[&FULL_KANA[..]].concat(), &[&HIRAGANA[..]].concat()),
+            HiraKana::HiraToKana => to_table([&HIRAGANA[..]].concat(), [&FULL_KANA[..]].concat()),
+            HiraKana::KanaToHira => to_table([&FULL_KANA[..]].concat(), [&HIRAGANA[..]].concat()),
         }
     }
 }
