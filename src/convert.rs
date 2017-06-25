@@ -9,15 +9,15 @@ use conv_table::HiraKana;
 ///
 /// # Example
 ///
-/// ```
-/// use kelp::conv_option::ConvOptionBuilder;
+/// ```rust
+/// use kelp::conv_option::ConvOption;
 /// use kelp::hira2kata;
 ///
-/// let option = ConvOptionBuilder::new().build();
+/// let option = ConvOption::build().finalize();
 /// let converted = hira2kata("あいうえお", option);
 /// assert_eq!("アイウエオ", converted);
 ///
-/// let option = ConvOptionBuilder::new().ignore("かこ").build();
+/// let option = ConvOption::build().ignore("かこ").finalize();
 /// let converted = hira2kata("かきくけこ", option);
 /// assert_eq!("かキクケこ", converted);
 /// ```
@@ -30,15 +30,15 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
 ///
 /// # Example
 ///
-/// ```
-/// use kelp::conv_option::ConvOptionBuilder;
+/// ```rust
+/// use kelp::conv_option::ConvOption;
 /// use kelp::hira2hkata;
 ///
-/// let option = ConvOptionBuilder::new().build();
+/// let option = ConvOption::build().finalize();
 /// let converted = hira2hkata("あいうえお", option);
 /// assert_eq!("ｱｲｳｴｵ", converted);
 ///
-/// let option = ConvOptionBuilder::new().ignore("がご").build();
+/// let option = ConvOption::build().ignore("がご").finalize();
 /// let converted = hira2hkata("がぎぐげご", option);
 /// assert_eq!("がｷﾞｸﾞｹﾞご", converted);
 /// ```
@@ -51,15 +51,15 @@ pub fn hira2hkata(text: &str, option: ConvOption) -> String {
 ///
 /// # Example
 ///
-/// ```
-/// use kelp::conv_option::ConvOptionBuilder;
+/// ```rust
+/// use kelp::conv_option::ConvOption;
 /// use kelp::kata2hira;
 ///
-/// let option = ConvOptionBuilder::new().build();
+/// let option = ConvOption::build().finalize();
 /// let converted = kata2hira("アイウエオ", option);
 /// assert_eq!("あいうえお", converted);
 ///
-/// let option = ConvOptionBuilder::new().ignore("キクケ").build();
+/// let option = ConvOption::build().ignore("キクケ").finalize();
 /// let converted = kata2hira("カキクケコ", option);
 /// assert_eq!("かキクケこ", converted);
 /// ```
@@ -70,7 +70,7 @@ pub fn kata2hira(text: &str, option: ConvOption) -> String {
 
 /// Convert strings refers conversion table and option settings
 fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> String {
-    let ignore: Vec<u32> = option.ignore_chars().into_iter().map(|c| c as u32).collect();
+    let ignore: Vec<u32> = option.ignore_chars().into_iter().map(|c| *c as u32).collect();
     let mut converted = Vec::new();
 
     for c in text.chars() {

@@ -2,121 +2,217 @@
 use std::vec::Vec;
 
 /// Convert option
-pub struct ConvOption<'a> {
+#[derive(Debug)]
+pub struct ConvOption {
     ascii: bool,
     digit: bool,
+    ignore: Vec<char>,
     kana: bool,
-    ignore: &'a str,
 }
 
-impl<'a> ConvOption<'a> {
-    /// Whether convert with ascii or not
+impl ConvOption {
+    /// Returns a builder of `ConvOption`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOption;
+    ///
+    /// let option = ConvOption::build().finalize();
+    /// assert!(!option.convert_ascii());
+    /// assert!(!option.convert_digit());
+    /// assert_eq!(0, option.ignore_chars().len());
+    /// assert!(option.convert_kana());
+    /// ```
+    pub fn build() -> ConvOptionBuilder {
+        ConvOptionBuilder::new()
+    }
+
+    /// Whether convert with ascii or not.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOption;
+    ///
+    /// let option = ConvOption::build().ascii(true).finalize();
+    /// assert!(option.convert_ascii());
+    ///
+    /// let option = ConvOption::build().ascii(false).finalize();
+    /// assert!(!option.convert_ascii());
+    /// ```
     pub fn convert_ascii(&self) -> bool {
         self.ascii
     }
 
-    /// Whether convert with digit or not
+    /// Whether convert with digit or not.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOption;
+    ///
+    /// let option = ConvOption::build().digit(true).finalize();
+    /// assert!(option.convert_digit());
+    ///
+    /// let option = ConvOption::build().digit(false).finalize();
+    /// assert!(!option.convert_digit());
+    /// ```
     pub fn convert_digit(&self) -> bool {
         self.digit
     }
 
-    /// Whether convert with kana or not
+    /// Whether convert with kana or not.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOption;
+    ///
+    /// let option = ConvOption::build().kana(true).finalize();
+    /// assert!(option.convert_kana());
+    ///
+    /// let option = ConvOption::build().kana(false).finalize();
+    /// assert!(!option.convert_kana());
+    /// ```
     pub fn convert_kana(&self) -> bool {
         self.kana
     }
 
-    /// Ignore characters when convert
-    pub fn ignore_chars(&self) -> Vec<char> {
-        self.ignore.chars().collect()
+    /// Ignore characters when convert.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOption;
+    ///
+    /// let option = ConvOption::build().ignore("").finalize();
+    /// assert_eq!(0, option.ignore_chars().len());
+    ///
+    /// let option = ConvOption::build().ignore("あいう").finalize();
+    /// assert_eq!(3, option.ignore_chars().len());
+    /// ```
+    pub fn ignore_chars(&self) -> &Vec<char> {
+        &self.ignore
     }
 }
 
 /// Builder of ConvOption
-pub struct ConvOptionBuilder<'a> {
+#[derive(Debug)]
+pub struct ConvOptionBuilder {
     ascii: bool,
     digit: bool,
-    ignore: &'a str,
+    ignore: Vec<char>,
     kana: bool,
 }
 
-impl<'a> ConvOptionBuilder<'a> {
+impl ConvOptionBuilder {
+    /// Returns a `ConvOptionBuilder` with default options.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().finalize();
+    /// assert!(!option.convert_ascii());
+    /// assert!(!option.convert_digit());
+    /// assert_eq!(0, option.ignore_chars().len());
+    /// assert!(option.convert_kana());
+    /// ```
     pub fn new() -> Self {
         ConvOptionBuilder {
             ascii: false,
             digit: false,
-            ignore: "",
+            ignore: vec![],
             kana: true,
         }
     }
 
-    /// Set a flag of ascii
-    pub fn ascii(&self, ascii: bool) -> Self {
-        ConvOptionBuilder { ascii: ascii, ..*self }
+    /// Set a flag of ascii.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().ascii(true).finalize();
+    /// assert!(option.convert_ascii());
+    /// ```
+    pub fn ascii(mut self, ascii: bool) -> Self {
+        self.ascii = ascii;
+        self
     }
 
-    /// Build a ConvOption
-    pub fn build(&self) -> ConvOption<'a> {
+    /// Set a flag of digit.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().digit(true).finalize();
+    /// assert!(option.convert_digit());
+    /// ```
+    pub fn digit(mut self, digit: bool) -> Self {
+        self.digit = digit;
+        self
+    }
+
+    /// Build a `ConvOption`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new()
+    ///     .ascii(true)
+    ///     .digit(true)
+    ///     .ignore("あいう")
+    ///     .kana(true)
+    ///     .finalize();
+    /// assert!(option.convert_ascii());
+    /// assert!(option.convert_digit());
+    /// assert_eq!(3, option.ignore_chars().len());
+    /// assert!(option.convert_kana());
+    /// ```
+    pub fn finalize(self) -> ConvOption {
         ConvOption {
             ascii: self.ascii,
             digit: self.digit,
-            ignore: self.ignore,
+            ignore: self.ignore.clone(),
             kana: self.kana,
         }
     }
 
-    /// Set a flag of digit
-    pub fn digit(&self, digit: bool) -> Self {
-        ConvOptionBuilder { digit: digit, ..*self }
+    /// Set ignore characters.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().ignore("あいう").finalize();
+    /// assert_eq!(3, option.ignore_chars().len());
+    /// ```
+    pub fn ignore(mut self, ignore: &str) -> Self {
+        self.ignore = ignore.chars().collect();
+        self
     }
 
-    /// Set ignore characters
-    pub fn ignore(&self, ignore: &'a str) -> Self {
-        ConvOptionBuilder { ignore: ignore, ..*self }
-    }
-
-    /// Set a flag of kana
-    pub fn kana(&self, kana: bool) -> Self {
-        ConvOptionBuilder { kana: kana, ..*self }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_ascii() {
-        let option = ConvOptionBuilder::new().build();
-        assert!(!option.convert_ascii());
-
-        let option = ConvOptionBuilder::new().ascii(true).build();
-        assert!(option.convert_ascii());
-    }
-
-    #[test]
-    fn test_digit() {
-        let option = ConvOptionBuilder::new().build();
-        assert!(!option.convert_digit());
-
-        let option = ConvOptionBuilder::new().digit(true).build();
-        assert!(option.convert_digit());
-    }
-
-    #[test]
-    fn test_kana() {
-        let option = ConvOptionBuilder::new().build();
-        assert!(option.convert_kana());
-
-        let option = ConvOptionBuilder::new().kana(false).build();
-        assert!(!option.convert_kana());
-    }
-
-    #[test]
-    fn test_ignore() {
-        let option = ConvOptionBuilder::new().build();
-        assert_eq!(0, option.ignore_chars().len());
-
-        let option = ConvOptionBuilder::new().ignore("ignore").build();
-        assert_eq!(6, option.ignore_chars().len());
+    /// Set a flag of kana.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().kana(false).finalize();
+    /// assert!(!option.convert_kana());
+    /// ```
+    pub fn kana(mut self, kana: bool) -> Self {
+        self.kana = kana;
+        self
     }
 }
