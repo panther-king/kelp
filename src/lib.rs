@@ -9,4 +9,5 @@ mod convert;
 pub use convert::hira2kata;
 pub use convert::hira2hkata;
 pub use convert::kata2hira;
+pub use convert::h2z;
 pub use convert::z2h;

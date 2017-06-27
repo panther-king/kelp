@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::vec::Vec;
 
 use conv_option::ConvOption;
-use conv_table::HiraKana;
+use conv_table::{FullToHalf, HalfToFull, HiraKana, MAP_KANA};
 
 /// Convert from hiragana to full-witdh katakana
 ///
@@ -68,6 +68,65 @@ pub fn kata2hira(text: &str, option: ConvOption) -> String {
     convert(text, table, option)
 }
 
+/// Convert from half-width to full-width
+///
+/// # Example
+///
+/// ```rust
+/// use kelp::conv_option::ConvOption;
+/// use kelp::h2z;
+///
+/// let option = ConvOption::build()
+///     .ascii(true)
+///     .digit(true)
+///     .kana(true)
+///     .finalize();
+/// let converted = h2z("ABCｱｲｳ012", option);
+/// assert_eq!("ＡＢＣアイウ０１２", converted);
+///
+/// let option = ConvOption::build()
+///     .ascii(true)
+///     .digit(true)
+///     .kana(true)
+///     .ignore("Aｱ0")
+///     .finalize();
+/// let converted = h2z("ABCｱｲｳ012", option);
+/// assert_eq!("AＢＣｱイウ0１２", converted);
+/// ```
+pub fn h2z(text: &str, option: ConvOption) -> String {
+    let convert_ascii = option.convert_ascii();
+    let convert_digit = option.convert_digit();
+    let convert_kana = option.convert_kana();
+    let conv_type = if convert_ascii {
+        if convert_digit {
+            if convert_kana {
+                HalfToFull::All
+            } else {
+                HalfToFull::AsciiAndDigits
+            }
+        } else if convert_kana {
+            HalfToFull::AsciiAndKana
+        } else {
+            HalfToFull::Ascii
+        }
+    } else if convert_digit {
+        if convert_kana {
+            HalfToFull::DigitsAndKana
+        } else {
+            HalfToFull::Digits
+        }
+    } else {
+        HalfToFull::Kana
+    };
+
+    let table = conv_type.to_table();
+    if convert_kana {
+        convert(&before_convert(text, MAP_KANA.to_vec()), table, option)
+    } else {
+        convert(text, table, option)
+    }
+}
+
 /// Convert from full-width to half-width
 ///
 /// # Example
@@ -120,6 +179,15 @@ pub fn z2h(text: &str, option: ConvOption) -> String {
     };
     let table = conv_type.to_table();
     convert(text, table, option)
+}
+
+/// Replace strings before convert
+fn before_convert(text: &str, convert: Vec<(&str, &str)>) -> String {
+    let mut converted = text.to_string();
+    for (before, after) in convert.into_iter() {
+        converted = converted.replace(before, after);
+    }
+    converted
 }
 
 /// Convert strings refers conversion table and option settings
@@ -197,6 +265,62 @@ mod tests {
         let before = strings!(FULL_KANA);
         let option = ConvOption::build().ignore(&before).finalize();
         assert_eq!(kata2hira(&before, option), before);
+    }
+
+    #[test]
+    fn test_h2z_all() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let option = ConvOption::build().ascii(true).digit(true).kana(true).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_ascii() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(FULL_ASCII, HALF_DIGIT, HALF_KANA);
+        let option = ConvOption::build().ascii(true).digit(false).kana(false).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_ascii_and_digits() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(FULL_ASCII, FULL_DIGIT, HALF_KANA);
+        let option = ConvOption::build().ascii(true).digit(true).kana(false).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_ascii_and_kana() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(FULL_ASCII, HALF_DIGIT, FULL_KANA);
+        let option = ConvOption::build().ascii(true).digit(false).kana(true).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_digits() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(HALF_ASCII, FULL_DIGIT, HALF_KANA);
+        let option = ConvOption::build().ascii(false).digit(true).kana(false).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_digits_and_kana() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(HALF_ASCII, FULL_DIGIT, FULL_KANA);
+        let option = ConvOption::build().ascii(false).digit(true).kana(true).finalize();
+        assert_eq!(h2z(&before, option), after);
+    }
+
+    #[test]
+    fn test_h2z_kana() {
+        let before = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
+        let after = strings!(HALF_ASCII, HALF_DIGIT, FULL_KANA);
+        let option = ConvOption::build().ascii(false).digit(false).kana(true).finalize();
+        assert_eq!(h2z(&before, option), after);
     }
 
     #[test]
