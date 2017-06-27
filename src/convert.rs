@@ -144,145 +144,113 @@ mod tests {
     use conv_table::*;
     use super::*;
 
+    macro_rules! strings {
+        ($($x:expr), *) => {{
+            let mut concat = String::new();
+            $(
+                concat = format!("{}{}", concat, $x.join(""));
+            )*
+            concat
+        }};
+    }
+
     #[test]
     fn test_hira2kata() {
-        let before = HIRAGANA.join("");
-        let after = FULL_KANA.join("");
+        let before = strings!(HIRAGANA);
+        let after = strings!(FULL_KANA);
         let option = ConvOption::build().finalize();
         assert_eq!(hira2kata(&before, option), after);
     }
 
     #[test]
     fn test_hira2kata_with_ignore() {
-        let before = HIRAGANA.join("");
+        let before = strings!(HIRAGANA);
         let option = ConvOption::build().ignore(&before).finalize();
         assert_eq!(hira2kata(&before, option), before);
     }
 
     #[test]
     fn test_hira2hkata() {
-        let before = HIRAGANA.join("");
-        let after = HALF_KANA.join("");
+        let before = strings!(HIRAGANA);
+        let after = strings!(HALF_KANA);
         let option = ConvOption::build().finalize();
         assert_eq!(hira2hkata(&before, option), after);
     }
 
     #[test]
     fn test_hira2hkata_with_ignore() {
-        let before = HIRAGANA.join("");
+        let before = strings!(HIRAGANA);
         let option = ConvOption::build().ignore(&before).finalize();
         assert_eq!(hira2hkata(&before, option), before);
     }
 
     #[test]
     fn test_kata2hira() {
-        let before = FULL_KANA.join("");
-        let after = HIRAGANA.join("");
+        let before = strings!(FULL_KANA);
+        let after = strings!(HIRAGANA);
         let option = ConvOption::build().finalize();
         assert_eq!(kata2hira(&before, option), after);
     }
 
     #[test]
     fn test_kata2hira_with_ignore() {
-        let before = FULL_KANA.join("");
+        let before = strings!(FULL_KANA);
         let option = ConvOption::build().ignore(&before).finalize();
         assert_eq!(kata2hira(&before, option), before);
     }
 
     #[test]
     fn test_z2h_all() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            HALF_ASCII.join(""),
-                            HALF_DIGIT.join(""),
-                            HALF_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(HALF_ASCII, HALF_DIGIT, HALF_KANA);
         let option = ConvOption::build().ascii(true).digit(true).kana(true).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_ascii() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            HALF_ASCII.join(""),
-                            FULL_DIGIT.join(""),
-                            FULL_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(HALF_ASCII, FULL_DIGIT, FULL_KANA);
         let option = ConvOption::build().ascii(true).digit(false).kana(false).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_ascii_and_digits() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            HALF_ASCII.join(""),
-                            HALF_DIGIT.join(""),
-                            FULL_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(HALF_ASCII, HALF_DIGIT, FULL_KANA);
         let option = ConvOption::build().ascii(true).digit(true).kana(false).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_ascii_and_kana() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            HALF_ASCII.join(""),
-                            FULL_DIGIT.join(""),
-                            HALF_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(HALF_ASCII, FULL_DIGIT, HALF_KANA);
         let option = ConvOption::build().ascii(true).digit(false).kana(true).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_digits() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            FULL_ASCII.join(""),
-                            HALF_DIGIT.join(""),
-                            FULL_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(FULL_ASCII, HALF_DIGIT, FULL_KANA);
         let option = ConvOption::build().ascii(false).digit(true).kana(false).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_digits_and_kana() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            FULL_ASCII.join(""),
-                            HALF_DIGIT.join(""),
-                            HALF_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(FULL_ASCII, HALF_DIGIT, HALF_KANA);
         let option = ConvOption::build().ascii(false).digit(true).kana(true).finalize();
         assert_eq!(z2h(&before, option), after);
     }
 
     #[test]
     fn test_z2h_kana() {
-        let before = format!("{}{}{}",
-                             FULL_ASCII.join(""),
-                             FULL_DIGIT.join(""),
-                             FULL_KANA.join(""));
-        let after = format!("{}{}{}",
-                            FULL_ASCII.join(""),
-                            FULL_DIGIT.join(""),
-                            HALF_KANA.join(""));
+        let before = strings!(FULL_ASCII, FULL_DIGIT, FULL_KANA);
+        let after = strings!(FULL_ASCII, FULL_DIGIT, HALF_KANA);
         let option = ConvOption::build().ascii(false).digit(false).kana(true).finalize();
         assert_eq!(z2h(&before, option), after);
     }
