@@ -4,3 +4,9 @@ version = "0.1.0"
 authors = ["Taro Yamashita <taro.ymst@gmail.com>"]
 
 [dependencies]
+clap = "2"
+
+[[bin]]
+name = "kelp"
+path = "src/bin/kelp.rs"
+doc = false
