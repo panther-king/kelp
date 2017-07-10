@@ -159,6 +159,90 @@ impl ConvOptionBuilder {
         self
     }
 
+    /// Disabled convert with ascii.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().disable_ascii().finalize();
+    /// assert!(!option.convert_ascii());
+    /// ```
+    pub fn disable_ascii(self) -> Self {
+        self.ascii(false)
+    }
+
+    /// Disabled convert with digit.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().disable_digit().finalize();
+    /// assert!(!option.convert_digit());
+    /// ```
+    pub fn disable_digit(self) -> Self {
+        self.digit(false)
+    }
+
+    /// Disabled convert with kana.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().disable_kana().finalize();
+    /// assert!(!option.convert_kana());
+    /// ```
+    pub fn disable_kana(self) -> Self {
+        self.kana(false)
+    }
+
+    /// Enabled convert with ascii.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().enable_ascii().finalize();
+    /// assert!(option.convert_ascii());
+    /// ```
+    pub fn enable_ascii(self) -> Self {
+        self.ascii(true)
+    }
+
+    /// Enabled convert with digit.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().enable_digit().finalize();
+    /// assert!(option.convert_digit());
+    /// ```
+    pub fn enable_digit(self) -> Self {
+        self.digit(true)
+    }
+
+    /// Enabled convert with kana.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use kelp::conv_option::ConvOptionBuilder;
+    ///
+    /// let option = ConvOptionBuilder::new().enable_kana().finalize();
+    /// assert!(option.convert_kana());
+    /// ```
+    pub fn enable_kana(self) -> Self {
+        self.kana(true)
+    }
+
     /// Build a `ConvOption`.
     ///
     /// # Example
