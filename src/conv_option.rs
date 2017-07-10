@@ -21,8 +21,8 @@ impl ConvOption {
     /// let option = ConvOption::build().finalize();
     /// assert!(!option.convert_ascii());
     /// assert!(!option.convert_digit());
+    /// assert!(!option.convert_kana());
     /// assert_eq!(0, option.ignore_chars().len());
-    /// assert!(option.convert_kana());
     /// ```
     pub fn build() -> ConvOptionBuilder {
         ConvOptionBuilder::new()
@@ -117,15 +117,15 @@ impl ConvOptionBuilder {
     /// let option = ConvOptionBuilder::new().finalize();
     /// assert!(!option.convert_ascii());
     /// assert!(!option.convert_digit());
+    /// assert!(!option.convert_kana());
     /// assert_eq!(0, option.ignore_chars().len());
-    /// assert!(option.convert_kana());
     /// ```
     pub fn new() -> Self {
         ConvOptionBuilder {
             ascii: false,
             digit: false,
             ignore: vec![],
-            kana: true,
+            kana: false,
         }
     }
 
