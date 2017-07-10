@@ -1,3 +1,53 @@
+//! # kelp-cli
+//!
+//! A command-line tool with kelp crate.
+//!
+//! ## Examples
+//!
+//! Convert from half-width to full-width only ascii.
+//!
+//! ```sh
+//! kelp-cli -a -c h2z ABC
+//! #=> ＡＢＣ
+//! ```
+//!
+//! Convert from full-width to half-width only digit.
+//!
+//! ```sh
+//! kelp-cli -d -c z2h １２３
+//! #=> 123
+//! ```
+//!
+//! Convert from half-width to full-width only kana.
+//!
+//! ```sh
+//! kelp-cli -k -c h2z ｱｲｳ
+//! #=> アイウ
+//! ```
+//!
+//! ## Options
+//!
+//! - -c, --conv
+//!     - Specified conversion pattern
+//!
+//! Option | Pattern
+//! ------ | -------
+//! h2z | half-width to full-width
+//! h2hk | half-width to half-width(katakana)
+//! h2k | half-width to full-width(katakana)
+//! k2h | full-width(katakana) to half-width(katakana)
+//! z2h | full-width to half-width
+//!
+//! - -a, --ascii
+//!     - Convert with ascii if specified
+//! - -d, --digit
+//!     - Convert with digit if specified
+//! - -k, --kana
+//!     - Convert with kana if specified
+//! - -i, --ignore
+//!     - Specified ignore characters
+//!     - e.g. `-i A1ｱ`
+//!
 extern crate clap;
 extern crate kelp;
 

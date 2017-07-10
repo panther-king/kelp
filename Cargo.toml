@@ -7,6 +7,5 @@ authors = ["Taro Yamashita <taro.ymst@gmail.com>"]
 clap = "2"
 
 [[bin]]
-name = "kelp"
+name = "kelp-cli"
 path = "src/bin/kelp.rs"
-doc = false
