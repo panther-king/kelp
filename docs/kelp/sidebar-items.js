@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["h2z","Convert from half-width to full-width"],["hira2hkata","Convert from hiragana to half-width katakana"],["hira2kata","Convert from hiragana to full-witdh katakana"],["kata2hira","Convert from full-width katakana to hiragana"],["z2h","Convert from full-width to half-width"]],"mod":[["conv_option","Options of converting"]]});

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/conv_table.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>conv_table.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc source">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Tables for conversion</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
+
+<span class="doccomment">/// ASCII(full-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FULL_ASCII</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">85</span>] <span class="op">=</span>
+    [<span class="string">&quot;！&quot;</span>, <span class="string">&quot;＂&quot;</span>, <span class="string">&quot;＃&quot;</span>, <span class="string">&quot;＄&quot;</span>, <span class="string">&quot;％&quot;</span>, <span class="string">&quot;＆&quot;</span>, <span class="string">&quot;＇&quot;</span>, <span class="string">&quot;（&quot;</span>, <span class="string">&quot;）&quot;</span>, <span class="string">&quot;＊&quot;</span>, <span class="string">&quot;＋&quot;</span>, <span class="string">&quot;，&quot;</span>, <span class="string">&quot;－&quot;</span>,
+     <span class="string">&quot;．&quot;</span>, <span class="string">&quot;／&quot;</span>, <span class="string">&quot;：&quot;</span>, <span class="string">&quot;；&quot;</span>, <span class="string">&quot;＜&quot;</span>, <span class="string">&quot;＝&quot;</span>, <span class="string">&quot;＞&quot;</span>, <span class="string">&quot;？&quot;</span>, <span class="string">&quot;＠&quot;</span>, <span class="string">&quot;Ａ&quot;</span>, <span class="string">&quot;Ｂ&quot;</span>, <span class="string">&quot;Ｃ&quot;</span>, <span class="string">&quot;Ｄ&quot;</span>,
+     <span class="string">&quot;Ｅ&quot;</span>, <span class="string">&quot;Ｆ&quot;</span>, <span class="string">&quot;Ｇ&quot;</span>, <span class="string">&quot;Ｈ&quot;</span>, <span class="string">&quot;Ｉ&quot;</span>, <span class="string">&quot;Ｊ&quot;</span>, <span class="string">&quot;Ｋ&quot;</span>, <span class="string">&quot;Ｌ&quot;</span>, <span class="string">&quot;Ｍ&quot;</span>, <span class="string">&quot;Ｎ&quot;</span>, <span class="string">&quot;Ｏ&quot;</span>, <span class="string">&quot;Ｐ&quot;</span>, <span class="string">&quot;Ｑ&quot;</span>,
+     <span class="string">&quot;Ｒ&quot;</span>, <span class="string">&quot;Ｓ&quot;</span>, <span class="string">&quot;Ｔ&quot;</span>, <span class="string">&quot;Ｕ&quot;</span>, <span class="string">&quot;Ｖ&quot;</span>, <span class="string">&quot;Ｗ&quot;</span>, <span class="string">&quot;Ｘ&quot;</span>, <span class="string">&quot;Ｙ&quot;</span>, <span class="string">&quot;Ｚ&quot;</span>, <span class="string">&quot;［&quot;</span>, <span class="string">&quot;＼&quot;</span>, <span class="string">&quot;］&quot;</span>, <span class="string">&quot;＾&quot;</span>,
+     <span class="string">&quot;＿&quot;</span>, <span class="string">&quot;｀&quot;</span>, <span class="string">&quot;ａ&quot;</span>, <span class="string">&quot;ｂ&quot;</span>, <span class="string">&quot;ｃ&quot;</span>, <span class="string">&quot;ｄ&quot;</span>, <span class="string">&quot;ｅ&quot;</span>, <span class="string">&quot;ｆ&quot;</span>, <span class="string">&quot;ｇ&quot;</span>, <span class="string">&quot;ｈ&quot;</span>, <span class="string">&quot;ｉ&quot;</span>, <span class="string">&quot;ｊ&quot;</span>, <span class="string">&quot;ｋ&quot;</span>,
+     <span class="string">&quot;ｌ&quot;</span>, <span class="string">&quot;ｍ&quot;</span>, <span class="string">&quot;ｎ&quot;</span>, <span class="string">&quot;ｏ&quot;</span>, <span class="string">&quot;ｐ&quot;</span>, <span class="string">&quot;ｑ&quot;</span>, <span class="string">&quot;ｒ&quot;</span>, <span class="string">&quot;ｓ&quot;</span>, <span class="string">&quot;ｔ&quot;</span>, <span class="string">&quot;ｕ&quot;</span>, <span class="string">&quot;ｖ&quot;</span>, <span class="string">&quot;ｗ&quot;</span>, <span class="string">&quot;ｘ&quot;</span>,
+     <span class="string">&quot;ｙ&quot;</span>, <span class="string">&quot;ｚ&quot;</span>, <span class="string">&quot;｛&quot;</span>, <span class="string">&quot;｜&quot;</span>, <span class="string">&quot;｝&quot;</span>, <span class="string">&quot;～&quot;</span>, <span class="string">&quot;　&quot;</span>];
+<span class="doccomment">/// ASCII(half-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HALF_ASCII</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">85</span>] <span class="op">=</span>
+    [<span class="string">&quot;!&quot;</span>, <span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;#&quot;</span>, <span class="string">&quot;$&quot;</span>, <span class="string">&quot;%&quot;</span>, <span class="string">&quot;&amp;&quot;</span>, <span class="string">&quot;&#39;&quot;</span>, <span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="string">&quot;*&quot;</span>, <span class="string">&quot;+&quot;</span>, <span class="string">&quot;,&quot;</span>, <span class="string">&quot;-&quot;</span>, <span class="string">&quot;.&quot;</span>, <span class="string">&quot;/&quot;</span>, <span class="string">&quot;:&quot;</span>, <span class="string">&quot;;&quot;</span>, <span class="string">&quot;&lt;&quot;</span>,
+     <span class="string">&quot;=&quot;</span>, <span class="string">&quot;&gt;&quot;</span>, <span class="string">&quot;?&quot;</span>, <span class="string">&quot;@&quot;</span>, <span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="string">&quot;D&quot;</span>, <span class="string">&quot;E&quot;</span>, <span class="string">&quot;F&quot;</span>, <span class="string">&quot;G&quot;</span>, <span class="string">&quot;H&quot;</span>, <span class="string">&quot;I&quot;</span>, <span class="string">&quot;J&quot;</span>, <span class="string">&quot;K&quot;</span>, <span class="string">&quot;L&quot;</span>, <span class="string">&quot;M&quot;</span>, <span class="string">&quot;N&quot;</span>,
+     <span class="string">&quot;O&quot;</span>, <span class="string">&quot;P&quot;</span>, <span class="string">&quot;Q&quot;</span>, <span class="string">&quot;R&quot;</span>, <span class="string">&quot;S&quot;</span>, <span class="string">&quot;T&quot;</span>, <span class="string">&quot;U&quot;</span>, <span class="string">&quot;V&quot;</span>, <span class="string">&quot;W&quot;</span>, <span class="string">&quot;X&quot;</span>, <span class="string">&quot;Y&quot;</span>, <span class="string">&quot;Z&quot;</span>, <span class="string">&quot;[&quot;</span>, <span class="string">&quot;\\&quot;</span>, <span class="string">&quot;]&quot;</span>, <span class="string">&quot;^&quot;</span>, <span class="string">&quot;_&quot;</span>, <span class="string">&quot;`&quot;</span>,
+     <span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>, <span class="string">&quot;d&quot;</span>, <span class="string">&quot;e&quot;</span>, <span class="string">&quot;f&quot;</span>, <span class="string">&quot;g&quot;</span>, <span class="string">&quot;h&quot;</span>, <span class="string">&quot;i&quot;</span>, <span class="string">&quot;j&quot;</span>, <span class="string">&quot;k&quot;</span>, <span class="string">&quot;l&quot;</span>, <span class="string">&quot;m&quot;</span>, <span class="string">&quot;n&quot;</span>, <span class="string">&quot;o&quot;</span>, <span class="string">&quot;p&quot;</span>, <span class="string">&quot;q&quot;</span>, <span class="string">&quot;r&quot;</span>,
+     <span class="string">&quot;s&quot;</span>, <span class="string">&quot;t&quot;</span>, <span class="string">&quot;u&quot;</span>, <span class="string">&quot;v&quot;</span>, <span class="string">&quot;w&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="string">&quot;y&quot;</span>, <span class="string">&quot;z&quot;</span>, <span class="string">&quot;{&quot;</span>, <span class="string">&quot;|&quot;</span>, <span class="string">&quot;}&quot;</span>, <span class="string">&quot;~&quot;</span>, <span class="string">&quot; &quot;</span>];
+
+<span class="doccomment">/// Digits(full-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FULL_DIGIT</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">10</span>] <span class="op">=</span> [<span class="string">&quot;０&quot;</span>, <span class="string">&quot;１&quot;</span>, <span class="string">&quot;２&quot;</span>, <span class="string">&quot;３&quot;</span>, <span class="string">&quot;４&quot;</span>, <span class="string">&quot;５&quot;</span>, <span class="string">&quot;６&quot;</span>, <span class="string">&quot;７&quot;</span>,
+                                           <span class="string">&quot;８&quot;</span>, <span class="string">&quot;９&quot;</span>];
+<span class="doccomment">/// Digits(half-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HALF_DIGIT</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">10</span>] <span class="op">=</span> [<span class="string">&quot;0&quot;</span>, <span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;4&quot;</span>, <span class="string">&quot;5&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;7&quot;</span>, <span class="string">&quot;8&quot;</span>, <span class="string">&quot;9&quot;</span>];
+
+<span class="doccomment">/// Hiragana(only full-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HIRAGANA</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">94</span>] <span class="op">=</span>
+    [<span class="string">&quot;ぁ&quot;</span>, <span class="string">&quot;あ&quot;</span>, <span class="string">&quot;ぃ&quot;</span>, <span class="string">&quot;い&quot;</span>, <span class="string">&quot;ぅ&quot;</span>, <span class="string">&quot;う&quot;</span>, <span class="string">&quot;ぇ&quot;</span>, <span class="string">&quot;え&quot;</span>, <span class="string">&quot;ぉ&quot;</span>, <span class="string">&quot;お&quot;</span>, <span class="string">&quot;か&quot;</span>, <span class="string">&quot;が&quot;</span>, <span class="string">&quot;き&quot;</span>,
+     <span class="string">&quot;ぎ&quot;</span>, <span class="string">&quot;く&quot;</span>, <span class="string">&quot;ぐ&quot;</span>, <span class="string">&quot;け&quot;</span>, <span class="string">&quot;げ&quot;</span>, <span class="string">&quot;こ&quot;</span>, <span class="string">&quot;ご&quot;</span>, <span class="string">&quot;さ&quot;</span>, <span class="string">&quot;ざ&quot;</span>, <span class="string">&quot;し&quot;</span>, <span class="string">&quot;じ&quot;</span>, <span class="string">&quot;す&quot;</span>, <span class="string">&quot;ず&quot;</span>,
+     <span class="string">&quot;せ&quot;</span>, <span class="string">&quot;ぜ&quot;</span>, <span class="string">&quot;そ&quot;</span>, <span class="string">&quot;ぞ&quot;</span>, <span class="string">&quot;た&quot;</span>, <span class="string">&quot;だ&quot;</span>, <span class="string">&quot;ち&quot;</span>, <span class="string">&quot;ぢ&quot;</span>, <span class="string">&quot;っ&quot;</span>, <span class="string">&quot;つ&quot;</span>, <span class="string">&quot;づ&quot;</span>, <span class="string">&quot;て&quot;</span>, <span class="string">&quot;で&quot;</span>,
+     <span class="string">&quot;と&quot;</span>, <span class="string">&quot;ど&quot;</span>, <span class="string">&quot;な&quot;</span>, <span class="string">&quot;に&quot;</span>, <span class="string">&quot;ぬ&quot;</span>, <span class="string">&quot;ね&quot;</span>, <span class="string">&quot;の&quot;</span>, <span class="string">&quot;は&quot;</span>, <span class="string">&quot;ば&quot;</span>, <span class="string">&quot;ぱ&quot;</span>, <span class="string">&quot;ひ&quot;</span>, <span class="string">&quot;び&quot;</span>, <span class="string">&quot;ぴ&quot;</span>,
+     <span class="string">&quot;ふ&quot;</span>, <span class="string">&quot;ぶ&quot;</span>, <span class="string">&quot;ぷ&quot;</span>, <span class="string">&quot;へ&quot;</span>, <span class="string">&quot;べ&quot;</span>, <span class="string">&quot;ぺ&quot;</span>, <span class="string">&quot;ほ&quot;</span>, <span class="string">&quot;ぼ&quot;</span>, <span class="string">&quot;ぽ&quot;</span>, <span class="string">&quot;ま&quot;</span>, <span class="string">&quot;み&quot;</span>, <span class="string">&quot;む&quot;</span>, <span class="string">&quot;め&quot;</span>,
+     <span class="string">&quot;も&quot;</span>, <span class="string">&quot;ゃ&quot;</span>, <span class="string">&quot;や&quot;</span>, <span class="string">&quot;ゅ&quot;</span>, <span class="string">&quot;ゆ&quot;</span>, <span class="string">&quot;ょ&quot;</span>, <span class="string">&quot;よ&quot;</span>, <span class="string">&quot;ら&quot;</span>, <span class="string">&quot;り&quot;</span>, <span class="string">&quot;る&quot;</span>, <span class="string">&quot;れ&quot;</span>, <span class="string">&quot;ろ&quot;</span>, <span class="string">&quot;わ&quot;</span>,
+     <span class="string">&quot;を&quot;</span>, <span class="string">&quot;ん&quot;</span>, <span class="string">&quot;ー&quot;</span>, <span class="string">&quot;ゎ&quot;</span>, <span class="string">&quot;ゐ&quot;</span>, <span class="string">&quot;ゑ&quot;</span>, <span class="string">&quot;ゕ&quot;</span>, <span class="string">&quot;ゖ&quot;</span>, <span class="string">&quot;ゔ&quot;</span>, <span class="string">&quot;ゝ&quot;</span>, <span class="string">&quot;ゞ&quot;</span>, <span class="string">&quot;・&quot;</span>, <span class="string">&quot;「&quot;</span>,
+     <span class="string">&quot;」&quot;</span>, <span class="string">&quot;。&quot;</span>, <span class="string">&quot;、&quot;</span>];
+
+<span class="doccomment">/// Katakana(full-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FULL_KANA</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">94</span>] <span class="op">=</span>
+    [<span class="string">&quot;ァ&quot;</span>, <span class="string">&quot;ア&quot;</span>, <span class="string">&quot;ィ&quot;</span>, <span class="string">&quot;イ&quot;</span>, <span class="string">&quot;ゥ&quot;</span>, <span class="string">&quot;ウ&quot;</span>, <span class="string">&quot;ェ&quot;</span>, <span class="string">&quot;エ&quot;</span>, <span class="string">&quot;ォ&quot;</span>, <span class="string">&quot;オ&quot;</span>, <span class="string">&quot;カ&quot;</span>, <span class="string">&quot;ガ&quot;</span>, <span class="string">&quot;キ&quot;</span>,
+     <span class="string">&quot;ギ&quot;</span>, <span class="string">&quot;ク&quot;</span>, <span class="string">&quot;グ&quot;</span>, <span class="string">&quot;ケ&quot;</span>, <span class="string">&quot;ゲ&quot;</span>, <span class="string">&quot;コ&quot;</span>, <span class="string">&quot;ゴ&quot;</span>, <span class="string">&quot;サ&quot;</span>, <span class="string">&quot;ザ&quot;</span>, <span class="string">&quot;シ&quot;</span>, <span class="string">&quot;ジ&quot;</span>, <span class="string">&quot;ス&quot;</span>, <span class="string">&quot;ズ&quot;</span>,
+     <span class="string">&quot;セ&quot;</span>, <span class="string">&quot;ゼ&quot;</span>, <span class="string">&quot;ソ&quot;</span>, <span class="string">&quot;ゾ&quot;</span>, <span class="string">&quot;タ&quot;</span>, <span class="string">&quot;ダ&quot;</span>, <span class="string">&quot;チ&quot;</span>, <span class="string">&quot;ヂ&quot;</span>, <span class="string">&quot;ッ&quot;</span>, <span class="string">&quot;ツ&quot;</span>, <span class="string">&quot;ヅ&quot;</span>, <span class="string">&quot;テ&quot;</span>, <span class="string">&quot;デ&quot;</span>,
+     <span class="string">&quot;ト&quot;</span>, <span class="string">&quot;ド&quot;</span>, <span class="string">&quot;ナ&quot;</span>, <span class="string">&quot;ニ&quot;</span>, <span class="string">&quot;ヌ&quot;</span>, <span class="string">&quot;ネ&quot;</span>, <span class="string">&quot;ノ&quot;</span>, <span class="string">&quot;ハ&quot;</span>, <span class="string">&quot;バ&quot;</span>, <span class="string">&quot;パ&quot;</span>, <span class="string">&quot;ヒ&quot;</span>, <span class="string">&quot;ビ&quot;</span>, <span class="string">&quot;ピ&quot;</span>,
+     <span class="string">&quot;フ&quot;</span>, <span class="string">&quot;ブ&quot;</span>, <span class="string">&quot;プ&quot;</span>, <span class="string">&quot;ヘ&quot;</span>, <span class="string">&quot;ベ&quot;</span>, <span class="string">&quot;ペ&quot;</span>, <span class="string">&quot;ホ&quot;</span>, <span class="string">&quot;ボ&quot;</span>, <span class="string">&quot;ポ&quot;</span>, <span class="string">&quot;マ&quot;</span>, <span class="string">&quot;ミ&quot;</span>, <span class="string">&quot;ム&quot;</span>, <span class="string">&quot;メ&quot;</span>,
+     <span class="string">&quot;モ&quot;</span>, <span class="string">&quot;ャ&quot;</span>, <span class="string">&quot;ヤ&quot;</span>, <span class="string">&quot;ュ&quot;</span>, <span class="string">&quot;ユ&quot;</span>, <span class="string">&quot;ョ&quot;</span>, <span class="string">&quot;ヨ&quot;</span>, <span class="string">&quot;ラ&quot;</span>, <span class="string">&quot;リ&quot;</span>, <span class="string">&quot;ル&quot;</span>, <span class="string">&quot;レ&quot;</span>, <span class="string">&quot;ロ&quot;</span>, <span class="string">&quot;ワ&quot;</span>,
+     <span class="string">&quot;ヲ&quot;</span>, <span class="string">&quot;ン&quot;</span>, <span class="string">&quot;ー&quot;</span>, <span class="string">&quot;ヮ&quot;</span>, <span class="string">&quot;ヰ&quot;</span>, <span class="string">&quot;ヱ&quot;</span>, <span class="string">&quot;ヵ&quot;</span>, <span class="string">&quot;ヶ&quot;</span>, <span class="string">&quot;ヴ&quot;</span>, <span class="string">&quot;ヽ&quot;</span>, <span class="string">&quot;ヾ&quot;</span>, <span class="string">&quot;・&quot;</span>, <span class="string">&quot;「&quot;</span>,
+     <span class="string">&quot;」&quot;</span>, <span class="string">&quot;。&quot;</span>, <span class="string">&quot;、&quot;</span>];
+<span class="doccomment">/// Katakana(half-width)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HALF_KANA</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">94</span>] <span class="op">=</span>
+    [<span class="string">&quot;ｧ&quot;</span>, <span class="string">&quot;ｱ&quot;</span>, <span class="string">&quot;ｨ&quot;</span>, <span class="string">&quot;ｲ&quot;</span>, <span class="string">&quot;ｩ&quot;</span>, <span class="string">&quot;ｳ&quot;</span>, <span class="string">&quot;ｪ&quot;</span>, <span class="string">&quot;ｴ&quot;</span>, <span class="string">&quot;ｫ&quot;</span>, <span class="string">&quot;ｵ&quot;</span>, <span class="string">&quot;ｶ&quot;</span>, <span class="string">&quot;ｶﾞ&quot;</span>, <span class="string">&quot;ｷ&quot;</span>,
+     <span class="string">&quot;ｷﾞ&quot;</span>, <span class="string">&quot;ｸ&quot;</span>, <span class="string">&quot;ｸﾞ&quot;</span>, <span class="string">&quot;ｹ&quot;</span>, <span class="string">&quot;ｹﾞ&quot;</span>, <span class="string">&quot;ｺ&quot;</span>, <span class="string">&quot;ｺﾞ&quot;</span>, <span class="string">&quot;ｻ&quot;</span>, <span class="string">&quot;ｻﾞ&quot;</span>, <span class="string">&quot;ｼ&quot;</span>,
+     <span class="string">&quot;ｼﾞ&quot;</span>, <span class="string">&quot;ｽ&quot;</span>, <span class="string">&quot;ｽﾞ&quot;</span>, <span class="string">&quot;ｾ&quot;</span>, <span class="string">&quot;ｾﾞ&quot;</span>, <span class="string">&quot;ｿ&quot;</span>, <span class="string">&quot;ｿﾞ&quot;</span>, <span class="string">&quot;ﾀ&quot;</span>, <span class="string">&quot;ﾀﾞ&quot;</span>, <span class="string">&quot;ﾁ&quot;</span>,
+     <span class="string">&quot;ﾁﾞ&quot;</span>, <span class="string">&quot;ｯ&quot;</span>, <span class="string">&quot;ﾂ&quot;</span>, <span class="string">&quot;ﾂﾞ&quot;</span>, <span class="string">&quot;ﾃ&quot;</span>, <span class="string">&quot;ﾃﾞ&quot;</span>, <span class="string">&quot;ﾄ&quot;</span>, <span class="string">&quot;ﾄﾞ&quot;</span>, <span class="string">&quot;ﾅ&quot;</span>, <span class="string">&quot;ﾆ&quot;</span>, <span class="string">&quot;ﾇ&quot;</span>,
+     <span class="string">&quot;ﾈ&quot;</span>, <span class="string">&quot;ﾉ&quot;</span>, <span class="string">&quot;ﾊ&quot;</span>, <span class="string">&quot;ﾊﾞ&quot;</span>, <span class="string">&quot;ﾊﾟ&quot;</span>, <span class="string">&quot;ﾋ&quot;</span>, <span class="string">&quot;ﾋﾞ&quot;</span>, <span class="string">&quot;ﾋﾟ&quot;</span>, <span class="string">&quot;ﾌ&quot;</span>, <span class="string">&quot;ﾌﾞ&quot;</span>,
+     <span class="string">&quot;ﾌﾟ&quot;</span>, <span class="string">&quot;ﾍ&quot;</span>, <span class="string">&quot;ﾍﾞ&quot;</span>, <span class="string">&quot;ﾍﾟ&quot;</span>, <span class="string">&quot;ﾎ&quot;</span>, <span class="string">&quot;ﾎﾞ&quot;</span>, <span class="string">&quot;ﾎﾟ&quot;</span>, <span class="string">&quot;ﾏ&quot;</span>, <span class="string">&quot;ﾐ&quot;</span>, <span class="string">&quot;ﾑ&quot;</span>, <span class="string">&quot;ﾒ&quot;</span>,
+     <span class="string">&quot;ﾓ&quot;</span>, <span class="string">&quot;ｬ&quot;</span>, <span class="string">&quot;ﾔ&quot;</span>, <span class="string">&quot;ｭ&quot;</span>, <span class="string">&quot;ﾕ&quot;</span>, <span class="string">&quot;ｮ&quot;</span>, <span class="string">&quot;ﾖ&quot;</span>, <span class="string">&quot;ﾗ&quot;</span>, <span class="string">&quot;ﾘ&quot;</span>, <span class="string">&quot;ﾙ&quot;</span>, <span class="string">&quot;ﾚ&quot;</span>, <span class="string">&quot;ﾛ&quot;</span>, <span class="string">&quot;ﾜ&quot;</span>,
+     <span class="string">&quot;ｦ&quot;</span>, <span class="string">&quot;ﾝ&quot;</span>, <span class="string">&quot;ｰ&quot;</span>, <span class="string">&quot;ヮ&quot;</span>, <span class="string">&quot;ヰ&quot;</span>, <span class="string">&quot;ヱ&quot;</span>, <span class="string">&quot;ヵ&quot;</span>, <span class="string">&quot;ヶ&quot;</span>, <span class="string">&quot;ｳﾞ&quot;</span>, <span class="string">&quot;ヽ&quot;</span>, <span class="string">&quot;ヾ&quot;</span>, <span class="string">&quot;･&quot;</span>, <span class="string">&quot;｢&quot;</span>,
+     <span class="string">&quot;｣&quot;</span>, <span class="string">&quot;｡&quot;</span>, <span class="string">&quot;､&quot;</span>];
+
+<span class="doccomment">/// Katakana(full-width, no voiced consonant marks)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FULL_KANA_SEION</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">68</span>] <span class="op">=</span>
+    [<span class="string">&quot;ァ&quot;</span>, <span class="string">&quot;ア&quot;</span>, <span class="string">&quot;ィ&quot;</span>, <span class="string">&quot;イ&quot;</span>, <span class="string">&quot;ゥ&quot;</span>, <span class="string">&quot;ウ&quot;</span>, <span class="string">&quot;ェ&quot;</span>, <span class="string">&quot;エ&quot;</span>, <span class="string">&quot;ォ&quot;</span>, <span class="string">&quot;オ&quot;</span>, <span class="string">&quot;カ&quot;</span>, <span class="string">&quot;キ&quot;</span>, <span class="string">&quot;ク&quot;</span>,
+     <span class="string">&quot;ケ&quot;</span>, <span class="string">&quot;コ&quot;</span>, <span class="string">&quot;サ&quot;</span>, <span class="string">&quot;シ&quot;</span>, <span class="string">&quot;ス&quot;</span>, <span class="string">&quot;セ&quot;</span>, <span class="string">&quot;ソ&quot;</span>, <span class="string">&quot;タ&quot;</span>, <span class="string">&quot;チ&quot;</span>, <span class="string">&quot;ッ&quot;</span>, <span class="string">&quot;ツ&quot;</span>, <span class="string">&quot;テ&quot;</span>, <span class="string">&quot;ト&quot;</span>,
+     <span class="string">&quot;ナ&quot;</span>, <span class="string">&quot;ニ&quot;</span>, <span class="string">&quot;ヌ&quot;</span>, <span class="string">&quot;ネ&quot;</span>, <span class="string">&quot;ノ&quot;</span>, <span class="string">&quot;ハ&quot;</span>, <span class="string">&quot;ヒ&quot;</span>, <span class="string">&quot;フ&quot;</span>, <span class="string">&quot;ヘ&quot;</span>, <span class="string">&quot;ホ&quot;</span>, <span class="string">&quot;マ&quot;</span>, <span class="string">&quot;ミ&quot;</span>, <span class="string">&quot;ム&quot;</span>,
+     <span class="string">&quot;メ&quot;</span>, <span class="string">&quot;モ&quot;</span>, <span class="string">&quot;ャ&quot;</span>, <span class="string">&quot;ヤ&quot;</span>, <span class="string">&quot;ュ&quot;</span>, <span class="string">&quot;ユ&quot;</span>, <span class="string">&quot;ョ&quot;</span>, <span class="string">&quot;ヨ&quot;</span>, <span class="string">&quot;ラ&quot;</span>, <span class="string">&quot;リ&quot;</span>, <span class="string">&quot;ル&quot;</span>, <span class="string">&quot;レ&quot;</span>, <span class="string">&quot;ロ&quot;</span>,
+     <span class="string">&quot;ワ&quot;</span>, <span class="string">&quot;ヲ&quot;</span>, <span class="string">&quot;ン&quot;</span>, <span class="string">&quot;ー&quot;</span>, <span class="string">&quot;ヮ&quot;</span>, <span class="string">&quot;ヰ&quot;</span>, <span class="string">&quot;ヱ&quot;</span>, <span class="string">&quot;ヵ&quot;</span>, <span class="string">&quot;ヶ&quot;</span>, <span class="string">&quot;ヽ&quot;</span>, <span class="string">&quot;ヾ&quot;</span>, <span class="string">&quot;・&quot;</span>, <span class="string">&quot;「&quot;</span>,
+     <span class="string">&quot;」&quot;</span>, <span class="string">&quot;。&quot;</span>, <span class="string">&quot;、&quot;</span>];
+<span class="doccomment">/// Katakana(half-width, no voiced consonant marks)</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">HALF_KANA_SEION</span>: [<span class="kw-2">&amp;</span><span class="ident">str</span>; <span class="number">68</span>] <span class="op">=</span>
+    [<span class="string">&quot;ｧ&quot;</span>, <span class="string">&quot;ｱ&quot;</span>, <span class="string">&quot;ｨ&quot;</span>, <span class="string">&quot;ｲ&quot;</span>, <span class="string">&quot;ｩ&quot;</span>, <span class="string">&quot;ｳ&quot;</span>, <span class="string">&quot;ｪ&quot;</span>, <span class="string">&quot;ｴ&quot;</span>, <span class="string">&quot;ｫ&quot;</span>, <span class="string">&quot;ｵ&quot;</span>, <span class="string">&quot;ｶ&quot;</span>, <span class="string">&quot;ｷ&quot;</span>, <span class="string">&quot;ｸ&quot;</span>,
+     <span class="string">&quot;ｹ&quot;</span>, <span class="string">&quot;ｺ&quot;</span>, <span class="string">&quot;ｻ&quot;</span>, <span class="string">&quot;ｼ&quot;</span>, <span class="string">&quot;ｽ&quot;</span>, <span class="string">&quot;ｾ&quot;</span>, <span class="string">&quot;ｿ&quot;</span>, <span class="string">&quot;ﾀ&quot;</span>, <span class="string">&quot;ﾁ&quot;</span>, <span class="string">&quot;ｯ&quot;</span>, <span class="string">&quot;ﾂ&quot;</span>, <span class="string">&quot;ﾃ&quot;</span>, <span class="string">&quot;ﾄ&quot;</span>,
+     <span class="string">&quot;ﾅ&quot;</span>, <span class="string">&quot;ﾆ&quot;</span>, <span class="string">&quot;ﾇ&quot;</span>, <span class="string">&quot;ﾈ&quot;</span>, <span class="string">&quot;ﾉ&quot;</span>, <span class="string">&quot;ﾊ&quot;</span>, <span class="string">&quot;ﾋ&quot;</span>, <span class="string">&quot;ﾌ&quot;</span>, <span class="string">&quot;ﾍ&quot;</span>, <span class="string">&quot;ﾎ&quot;</span>, <span class="string">&quot;ﾏ&quot;</span>, <span class="string">&quot;ﾐ&quot;</span>, <span class="string">&quot;ﾑ&quot;</span>,
+     <span class="string">&quot;ﾒ&quot;</span>, <span class="string">&quot;ﾓ&quot;</span>, <span class="string">&quot;ｬ&quot;</span>, <span class="string">&quot;ﾔ&quot;</span>, <span class="string">&quot;ｭ&quot;</span>, <span class="string">&quot;ﾕ&quot;</span>, <span class="string">&quot;ｮ&quot;</span>, <span class="string">&quot;ﾖ&quot;</span>, <span class="string">&quot;ﾗ&quot;</span>, <span class="string">&quot;ﾘ&quot;</span>, <span class="string">&quot;ﾙ&quot;</span>, <span class="string">&quot;ﾚ&quot;</span>, <span class="string">&quot;ﾛ&quot;</span>,
+     <span class="string">&quot;ﾜ&quot;</span>, <span class="string">&quot;ｦ&quot;</span>, <span class="string">&quot;ﾝ&quot;</span>, <span class="string">&quot;ｰ&quot;</span>, <span class="string">&quot;ヮ&quot;</span>, <span class="string">&quot;ヰ&quot;</span>, <span class="string">&quot;ヱ&quot;</span>, <span class="string">&quot;ヵ&quot;</span>, <span class="string">&quot;ヶ&quot;</span>, <span class="string">&quot;ヽ&quot;</span>, <span class="string">&quot;ヾ&quot;</span>, <span class="string">&quot;･&quot;</span>, <span class="string">&quot;｢&quot;</span>,
+     <span class="string">&quot;｣&quot;</span>, <span class="string">&quot;｡&quot;</span>, <span class="string">&quot;､&quot;</span>];
+
+<span class="doccomment">/// A table that convert from katakana(half-width) to katakana(full-width)</span>
+<span class="doccomment">/// with voiced consonant marks</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MAP_KANA</span>: [(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>); <span class="number">26</span>] <span class="op">=</span> [(<span class="string">&quot;ｶﾞ&quot;</span>, <span class="string">&quot;ガ&quot;</span>),
+                                                 (<span class="string">&quot;ｷﾞ&quot;</span>, <span class="string">&quot;ギ&quot;</span>),
+                                                 (<span class="string">&quot;ｸﾞ&quot;</span>, <span class="string">&quot;グ&quot;</span>),
+                                                 (<span class="string">&quot;ｹﾞ&quot;</span>, <span class="string">&quot;ゲ&quot;</span>),
+                                                 (<span class="string">&quot;ｺﾞ&quot;</span>, <span class="string">&quot;ゴ&quot;</span>),
+                                                 (<span class="string">&quot;ｻﾞ&quot;</span>, <span class="string">&quot;ザ&quot;</span>),
+                                                 (<span class="string">&quot;ｼﾞ&quot;</span>, <span class="string">&quot;ジ&quot;</span>),
+                                                 (<span class="string">&quot;ｽﾞ&quot;</span>, <span class="string">&quot;ズ&quot;</span>),
+                                                 (<span class="string">&quot;ｾﾞ&quot;</span>, <span class="string">&quot;ゼ&quot;</span>),
+                                                 (<span class="string">&quot;ｿﾞ&quot;</span>, <span class="string">&quot;ゾ&quot;</span>),
+                                                 (<span class="string">&quot;ﾀﾞ&quot;</span>, <span class="string">&quot;ダ&quot;</span>),
+                                                 (<span class="string">&quot;ﾁﾞ&quot;</span>, <span class="string">&quot;ヂ&quot;</span>),
+                                                 (<span class="string">&quot;ﾂﾞ&quot;</span>, <span class="string">&quot;ヅ&quot;</span>),
+                                                 (<span class="string">&quot;ﾃﾞ&quot;</span>, <span class="string">&quot;デ&quot;</span>),
+                                                 (<span class="string">&quot;ﾄﾞ&quot;</span>, <span class="string">&quot;ド&quot;</span>),
+                                                 (<span class="string">&quot;ﾊﾞ&quot;</span>, <span class="string">&quot;バ&quot;</span>),
+                                                 (<span class="string">&quot;ﾋﾞ&quot;</span>, <span class="string">&quot;ビ&quot;</span>),
+                                                 (<span class="string">&quot;ﾌﾞ&quot;</span>, <span class="string">&quot;ブ&quot;</span>),
+                                                 (<span class="string">&quot;ﾍﾞ&quot;</span>, <span class="string">&quot;ベ&quot;</span>),
+                                                 (<span class="string">&quot;ﾎﾞ&quot;</span>, <span class="string">&quot;ボ&quot;</span>),
+                                                 (<span class="string">&quot;ﾊﾟ&quot;</span>, <span class="string">&quot;パ&quot;</span>),
+                                                 (<span class="string">&quot;ﾋﾟ&quot;</span>, <span class="string">&quot;ピ&quot;</span>),
+                                                 (<span class="string">&quot;ﾌﾟ&quot;</span>, <span class="string">&quot;プ&quot;</span>),
+                                                 (<span class="string">&quot;ﾍﾟ&quot;</span>, <span class="string">&quot;ペ&quot;</span>),
+                                                 (<span class="string">&quot;ﾎﾟ&quot;</span>, <span class="string">&quot;ポ&quot;</span>),
+                                                 (<span class="string">&quot;ｳﾞ&quot;</span>, <span class="string">&quot;ヴ&quot;</span>)];
+
+<span class="kw">fn</span> <span class="ident">to_table</span>(<span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">key</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">value</span>.<span class="ident">len</span>());
+
+    <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">join</span>(<span class="string">&quot;&quot;</span>).<span class="ident">chars</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;&gt;</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+
+    <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">keys</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">value</span>.<span class="ident">into_iter</span>()) {
+        <span class="ident">table</span>.<span class="ident">insert</span>(<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">to_string</span>());
+    }
+
+    <span class="ident">table</span>
+}
+
+<span class="doccomment">/// Convert from full-width to half-width</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FullToHalf</span> {
+    <span class="doccomment">/// Ascii, digits and katakana</span>
+    <span class="ident">All</span>,
+    <span class="doccomment">/// Only ascii</span>
+    <span class="ident">Ascii</span>,
+    <span class="doccomment">/// Ascii and digits</span>
+    <span class="ident">AsciiAndDigits</span>,
+    <span class="doccomment">/// Ascii and katakana</span>
+    <span class="ident">AsciiAndKana</span>,
+    <span class="doccomment">/// Only digits</span>
+    <span class="ident">Digits</span>,
+    <span class="doccomment">/// Digits and katakana</span>
+    <span class="ident">DigitsAndKana</span>,
+    <span class="doccomment">/// Only katakana</span>
+    <span class="ident">Kana</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">FullToHalf</span> {
+    <span class="doccomment">/// Make a conversion table</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_table</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">FullToHalf</span>::<span class="ident">All</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">FullToHalf</span>::<span class="ident">Ascii</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..]].<span class="ident">concat</span>()),
+            <span class="ident">FullToHalf</span>::<span class="ident">AsciiAndDigits</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">FullToHalf</span>::<span class="ident">AsciiAndKana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">FullToHalf</span>::<span class="ident">Digits</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..]].<span class="ident">concat</span>()),
+            <span class="ident">FullToHalf</span>::<span class="ident">DigitsAndKana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">FullToHalf</span>::<span class="ident">Kana</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">HALF_KANA</span>[..]].<span class="ident">concat</span>()),
+        }
+    }
+}
+
+<span class="doccomment">/// Convert from half-width to full-width</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HalfToFull</span> {
+    <span class="doccomment">/// Ascii, digits and katakana</span>
+    <span class="ident">All</span>,
+    <span class="doccomment">/// Only ascii</span>
+    <span class="ident">Ascii</span>,
+    <span class="doccomment">/// Ascii and digits</span>
+    <span class="ident">AsciiAndDigits</span>,
+    <span class="doccomment">/// Ascii and katakana</span>
+    <span class="ident">AsciiAndKana</span>,
+    <span class="doccomment">/// Only digits</span>
+    <span class="ident">Digits</span>,
+    <span class="doccomment">/// Digits and katakana</span>
+    <span class="ident">DigitsAndKana</span>,
+    <span class="doccomment">/// Only katakana</span>
+    <span class="ident">Kana</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">HalfToFull</span> {
+    <span class="doccomment">/// Make a conversion table</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_table</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">HalfToFull</span>::<span class="ident">All</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA_SEION</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA_SEION</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">HalfToFull</span>::<span class="ident">Ascii</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..]].<span class="ident">concat</span>()),
+            <span class="ident">HalfToFull</span>::<span class="ident">AsciiAndDigits</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">HalfToFull</span>::<span class="ident">AsciiAndKana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA_SEION</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">FULL_ASCII</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA_SEION</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">HalfToFull</span>::<span class="ident">Digits</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..]].<span class="ident">concat</span>()),
+            <span class="ident">HalfToFull</span>::<span class="ident">DigitsAndKana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">HALF_KANA_SEION</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">FULL_DIGIT</span>[..], <span class="kw-2">&amp;</span><span class="ident">FULL_KANA_SEION</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">HalfToFull</span>::<span class="ident">Kana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HALF_KANA_SEION</span>[..]].<span class="ident">concat</span>(),
+                         [<span class="kw-2">&amp;</span><span class="ident">FULL_KANA_SEION</span>[..]].<span class="ident">concat</span>())
+            }
+        }
+    }
+}
+
+<span class="doccomment">/// Convert between hiragana and katakana</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HiraKana</span> {
+    <span class="doccomment">/// From hiragana to katakana(half-width)</span>
+    <span class="ident">HiraToHalfKana</span>,
+    <span class="doccomment">/// From hiragana to katakana(full-width)</span>
+    <span class="ident">HiraToKana</span>,
+    <span class="doccomment">/// From katakana(full-width) to hiragana</span>
+    <span class="ident">KanaToHira</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">HiraKana</span> {
+    <span class="doccomment">/// Make a conversion table</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_table</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">HiraKana</span>::<span class="ident">HiraToHalfKana</span> <span class="op">=&gt;</span> {
+                <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HIRAGANA</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">HALF_KANA</span>[..]].<span class="ident">concat</span>())
+            }
+            <span class="ident">HiraKana</span>::<span class="ident">HiraToKana</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">HIRAGANA</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>()),
+            <span class="ident">HiraKana</span>::<span class="ident">KanaToHira</span> <span class="op">=&gt;</span> <span class="ident">to_table</span>([<span class="kw-2">&amp;</span><span class="ident">FULL_KANA</span>[..]].<span class="ident">concat</span>(), [<span class="kw-2">&amp;</span><span class="ident">HIRAGANA</span>[..]].<span class="ident">concat</span>()),
+        }
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_all</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">All</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">189</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65313</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;A&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65296</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;0&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12460</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｶﾞ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_ascii</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">Ascii</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">85</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65314</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;B&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65297</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12461</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_ascii_and_digits</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">AsciiAndDigits</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">95</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65315</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;C&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65298</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;2&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12462</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_ascii_and_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">AsciiAndKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">179</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65316</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;D&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65299</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12463</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｸ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_digits</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">Digits</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65317</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65300</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;4&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12464</span>), <span class="prelude-val">None</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_digits_and_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">DigitsAndKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">104</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65318</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65301</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;5&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12465</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｹ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_full_to_half_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">FullToHalf</span>::<span class="ident">Kana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">94</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65319</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65302</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12466</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｹﾞ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_all</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">All</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">163</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">97</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ａ&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">48</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;０&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65393</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ア&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_ascii</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">Ascii</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">85</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">98</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｂ&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">49</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65394</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_ascii_and_digits</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">AsciiAndDigits</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">95</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">99</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｃ&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">50</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;２&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65395</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_ascii_and_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">AsciiAndKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">153</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">100</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｄ&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">51</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65396</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;エ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_digits</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">Digits</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">101</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">52</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;４&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65397</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_digits_and_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">DigitsAndKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">78</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">102</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">53</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;５&quot;</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65398</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;カ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_half_to_full_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HalfToFull</span>::<span class="ident">Kana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">68</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">103</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">54</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">65399</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;キ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_hiara_kana_hira_to_half_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HiraKana</span>::<span class="ident">HiraToHalfKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">94</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12354</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ｱ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_hira_kana_hira_to_kana</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HiraKana</span>::<span class="ident">HiraToKana</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">94</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12355</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ィ&quot;</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_hira_kana_kana_to_hira</span>() {
+        <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">HiraKana</span>::<span class="ident">KanaToHira</span>.<span class="ident">to_table</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">94</span>, <span class="ident">table</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">table</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="number">12531</span>).<span class="ident">unwrap</span>(), <span class="string">&quot;ん&quot;</span>);
+    }
+}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "kelp";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
