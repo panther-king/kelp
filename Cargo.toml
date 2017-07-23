@@ -2,6 +2,12 @@
 name = "kelp"
 version = "0.1.0"
 authors = ["Taro Yamashita <taro.ymst@gmail.com>"]
+repository = "https://github.com/panther-king/kelp"
+keywords = ["conversion", "cli"]
+readme = "README.md"
+license-file = "LICENSE"
+description = "A convert tool for Japanese."
+documentation = "https://panther-king.github.io/kelp/kelp/"
 
 [dependencies]
 clap = "2"
