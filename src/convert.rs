@@ -2,8 +2,8 @@
 use std::collections::HashMap;
 use std::vec::Vec;
 
-use conv_option::ConvOption;
-use conv_table::{FullToHalf, HalfToFull, HiraKana, MAP_KANA};
+use crate::conv_option::ConvOption;
+use crate::conv_table::{FullToHalf, HalfToFull, HiraKana, MAP_KANA};
 
 /// Convert from hiragana to full-witdh katakana
 ///
@@ -208,8 +208,8 @@ fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> Strin
 
 #[cfg(test)]
 mod tests {
-    use conv_option::ConvOption;
-    use conv_table::*;
+    use crate::conv_option::ConvOption;
+    use crate::conv_table::*;
     use super::*;
 
     macro_rules! strings {
