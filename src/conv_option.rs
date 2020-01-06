@@ -25,7 +25,7 @@ impl ConvOption {
     /// assert_eq!(0, option.ignore_chars().len());
     /// ```
     pub fn build() -> ConvOptionBuilder {
-        ConvOptionBuilder::new()
+        Default::default()
     }
 
     /// Whether convert with ascii or not.
@@ -98,7 +98,7 @@ impl ConvOption {
 }
 
 /// Builder of ConvOption
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ConvOptionBuilder {
     ascii: bool,
     digit: bool,
@@ -107,36 +107,14 @@ pub struct ConvOptionBuilder {
 }
 
 impl ConvOptionBuilder {
-    /// Returns a `ConvOptionBuilder` with default options.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
-    ///
-    /// let option = ConvOptionBuilder::new().finalize();
-    /// assert!(!option.convert_ascii());
-    /// assert!(!option.convert_digit());
-    /// assert!(!option.convert_kana());
-    /// assert_eq!(0, option.ignore_chars().len());
-    /// ```
-    pub fn new() -> Self {
-        ConvOptionBuilder {
-            ascii: false,
-            digit: false,
-            ignore: vec![],
-            kana: false,
-        }
-    }
-
     /// Set a flag of ascii.
     ///
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().ascii(true).finalize();
+    /// let option = ConvOption::build().ascii(true).finalize();
     /// assert!(option.convert_ascii());
     /// ```
     pub fn ascii(mut self, ascii: bool) -> Self {
@@ -149,9 +127,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().digit(true).finalize();
+    /// let option = ConvOption::build().digit(true).finalize();
     /// assert!(option.convert_digit());
     /// ```
     pub fn digit(mut self, digit: bool) -> Self {
@@ -164,9 +142,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().disable_ascii().finalize();
+    /// let option = ConvOption::build().disable_ascii().finalize();
     /// assert!(!option.convert_ascii());
     /// ```
     pub fn disable_ascii(self) -> Self {
@@ -178,9 +156,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().disable_digit().finalize();
+    /// let option = ConvOption::build().disable_digit().finalize();
     /// assert!(!option.convert_digit());
     /// ```
     pub fn disable_digit(self) -> Self {
@@ -192,9 +170,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().disable_kana().finalize();
+    /// let option = ConvOption::build().disable_kana().finalize();
     /// assert!(!option.convert_kana());
     /// ```
     pub fn disable_kana(self) -> Self {
@@ -206,9 +184,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().enable_ascii().finalize();
+    /// let option = ConvOption::build().enable_ascii().finalize();
     /// assert!(option.convert_ascii());
     /// ```
     pub fn enable_ascii(self) -> Self {
@@ -220,9 +198,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().enable_digit().finalize();
+    /// let option = ConvOption::build().enable_digit().finalize();
     /// assert!(option.convert_digit());
     /// ```
     pub fn enable_digit(self) -> Self {
@@ -234,9 +212,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().enable_kana().finalize();
+    /// let option = ConvOption::build().enable_kana().finalize();
     /// assert!(option.convert_kana());
     /// ```
     pub fn enable_kana(self) -> Self {
@@ -248,9 +226,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new()
+    /// let option = ConvOption::build()
     ///     .ascii(true)
     ///     .digit(true)
     ///     .ignore("あいう")
@@ -275,9 +253,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().ignore("あいう").finalize();
+    /// let option = ConvOption::build().ignore("あいう").finalize();
     /// assert_eq!(3, option.ignore_chars().len());
     /// ```
     pub fn ignore(mut self, ignore: &str) -> Self {
@@ -290,9 +268,9 @@ impl ConvOptionBuilder {
     /// # Example
     ///
     /// ```rust
-    /// use kelp::conv_option::ConvOptionBuilder;
+    /// use kelp::conv_option::ConvOption;
     ///
-    /// let option = ConvOptionBuilder::new().kana(false).finalize();
+    /// let option = ConvOption::build().kana(false).finalize();
     /// assert!(!option.convert_kana());
     /// ```
     pub fn kana(mut self, kana: bool) -> Self {

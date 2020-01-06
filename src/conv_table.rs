@@ -108,13 +108,10 @@ fn to_table(key: Vec<&str>, value: Vec<&str>) -> HashMap<u32, String> {
     assert!(key.len() == value.len());
 
     let keys = key.join("").chars().map(|c| c as u32).collect::<Vec<u32>>();
-    let mut table = HashMap::new();
-
-    for (k, v) in keys.into_iter().zip(value.into_iter()) {
-        table.insert(k, v.to_string());
-    }
-
-    table
+    keys.into_iter()
+        .zip(value.into_iter())
+        .map(|(k, v)| (k, v.to_string()))
+        .collect::<HashMap<u32, String>>()
 }
 
 /// Convert from full-width to half-width
@@ -138,7 +135,7 @@ pub enum FullToHalf {
 impl FullToHalf {
     /// Make a conversion table
     pub fn to_table(&self) -> HashMap<u32, String> {
-        match *self {
+        match self {
             FullToHalf::All => {
                 to_table([&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA[..]].concat(),
                          [&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA[..]].concat())
@@ -183,7 +180,7 @@ pub enum HalfToFull {
 impl HalfToFull {
     /// Make a conversion table
     pub fn to_table(&self) -> HashMap<u32, String> {
-        match *self {
+        match self {
             HalfToFull::All => {
                 to_table([&HALF_ASCII[..], &HALF_DIGIT[..], &HALF_KANA_SEION[..]].concat(),
                          [&FULL_ASCII[..], &FULL_DIGIT[..], &FULL_KANA_SEION[..]].concat())
@@ -223,7 +220,7 @@ pub enum HiraKana {
 impl HiraKana {
     /// Make a conversion table
     pub fn to_table(&self) -> HashMap<u32, String> {
-        match *self {
+        match self {
             HiraKana::HiraToHalfKana => {
                 to_table([&HIRAGANA[..]].concat(), [&HALF_KANA[..]].concat())
             }
