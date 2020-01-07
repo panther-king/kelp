@@ -57,7 +57,7 @@ use kelp::hira2hkata;
 use kelp::hira2kata;
 use kelp::kata2hira;
 use kelp::z2h;
-use kelp::conv_option::ConvOption;
+use kelp::ConvOption;
 
 fn main() {
     let matches = App::new("kelp")
@@ -91,13 +91,12 @@ fn main() {
             .help("Specified ignore characters"))
         .get_matches();
 
-    let option = ConvOption::build()
-        .ascii(matches.is_present("ascii"))
-        .digit(matches.is_present("digit"))
-        .kana(matches.is_present("digit"))
-        .ignore(matches.value_of("ignore").unwrap_or(""))
-        .finalize();
-
+    let option = ConvOption {
+        ascii: matches.is_present("ascii"),
+        digit: matches.is_present("digit"),
+        ignore: matches.value_of("ignore").unwrap_or("").to_string(),
+        kana: matches.is_present("digit"),
+    };
     let text = matches.value_of("INPUT").unwrap();
 
     let converted = match matches.value_of("convert") {
