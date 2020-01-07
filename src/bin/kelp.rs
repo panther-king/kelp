@@ -64,31 +64,43 @@ fn main() {
         .version("0.1")
         .author("Taro Yamashita <taro.ymst@gmail.com>")
         .about("A conversion tool of Japanese")
-        .arg(Arg::with_name("INPUT")
-            .required(true)
-            .help("A text that you want to convert"))
-        .arg(Arg::with_name("convert")
-            .short("c")
-            .long("conv")
-            .takes_value(true)
-            .help("Specified conversion pattern"))
-        .arg(Arg::with_name("ascii")
-            .short("a")
-            .long("ascii")
-            .help("Convert with ascii if specified"))
-        .arg(Arg::with_name("digit")
-            .short("d")
-            .long("digit")
-            .help("Convert with digit if specified"))
-        .arg(Arg::with_name("kana")
-            .short("k")
-            .long("kana")
-            .help("Convert with kana if specified"))
-        .arg(Arg::with_name("ignore")
-            .short("i")
-            .long("ignore")
-            .takes_value(true)
-            .help("Specified ignore characters"))
+        .arg(
+            Arg::with_name("INPUT")
+                .required(true)
+                .help("A text that you want to convert"),
+        )
+        .arg(
+            Arg::with_name("convert")
+                .short("c")
+                .long("conv")
+                .takes_value(true)
+                .help("Specified conversion pattern"),
+        )
+        .arg(
+            Arg::with_name("ascii")
+                .short("a")
+                .long("ascii")
+                .help("Convert with ascii if specified"),
+        )
+        .arg(
+            Arg::with_name("digit")
+                .short("d")
+                .long("digit")
+                .help("Convert with digit if specified"),
+        )
+        .arg(
+            Arg::with_name("kana")
+                .short("k")
+                .long("kana")
+                .help("Convert with kana if specified"),
+        )
+        .arg(
+            Arg::with_name("ignore")
+                .short("i")
+                .long("ignore")
+                .takes_value(true)
+                .help("Specified ignore characters"),
+        )
         .get_matches();
 
     let option = ConvOption {
