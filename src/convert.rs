@@ -1,8 +1,7 @@
 //! Functions which convert strings.
-use std::collections::HashMap;
 use std::vec::Vec;
 
-use crate::conv_table::{FullToHalf, HalfToFull, HiraKana, MAP_KANA};
+use crate::conv_table::{Method, Target, MAP_KANA};
 use crate::ConvOption;
 
 /// Convert from hiragana to full-witdh katakana
@@ -27,8 +26,8 @@ use crate::ConvOption;
 /// assert_eq!("かキクケこ", converted);
 /// ```
 pub fn hira2kata(text: &str, option: ConvOption) -> String {
-    let table = HiraKana::HiraToKana.to_table();
-    convert(text, table, option)
+    let method = Method::HiraToKana;
+    convert(text, method, &option.ignore)
 }
 
 /// Convert from hiragana to half-width katakana
@@ -53,8 +52,8 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
 /// assert_eq!("がｷﾞｸﾞｹﾞご", converted);
 /// ```
 pub fn hira2hkata(text: &str, option: ConvOption) -> String {
-    let table = HiraKana::HiraToHalfKana.to_table();
-    convert(text, table, option)
+    let method = Method::HiraToHalfKana;
+    convert(text, method, &option.ignore)
 }
 
 /// Convert from full-width katakana to hiragana
@@ -79,8 +78,8 @@ pub fn hira2hkata(text: &str, option: ConvOption) -> String {
 /// assert_eq!("かキクケこ", converted);
 /// ```
 pub fn kata2hira(text: &str, option: ConvOption) -> String {
-    let table = HiraKana::KanaToHira.to_table();
-    convert(text, table, option)
+    let method = Method::KanaToHira;
+    convert(text, method, &option.ignore)
 }
 
 /// Convert from half-width to full-width
@@ -110,21 +109,15 @@ pub fn kata2hira(text: &str, option: ConvOption) -> String {
 /// assert_eq!("AＢＣｱイウ0１２", converted);
 /// ```
 pub fn h2z(text: &str, option: ConvOption) -> String {
-    let conv_type = match (option.ascii, option.digit, option.kana) {
-        (true, true, true) => HalfToFull::All,
-        (true, true, false) => HalfToFull::AsciiAndDigits,
-        (true, false, true) => HalfToFull::AsciiAndKana,
-        (true, false, false) => HalfToFull::Ascii,
-        (false, true, true) => HalfToFull::DigitsAndKana,
-        (false, true, false) => HalfToFull::Digits,
-        _ => HalfToFull::Kana,
-    };
-    let table = conv_type.to_table();
-
+    let method = Method::HalfToFull(Target::from(&option));
     if option.kana {
-        convert(&before_convert(text, MAP_KANA.to_vec()), table, option)
+        convert(
+            &before_convert(text, MAP_KANA.to_vec()),
+            method,
+            &option.ignore,
+        )
     } else {
-        convert(text, table, option)
+        convert(text, method, &option.ignore)
     }
 }
 
@@ -155,18 +148,8 @@ pub fn h2z(text: &str, option: ConvOption) -> String {
 /// assert_eq!("ＡBCアｲｳ０12", converted);
 /// ```
 pub fn z2h(text: &str, option: ConvOption) -> String {
-    let conv_type = match (option.ascii, option.digit, option.kana) {
-        (true, true, true) => FullToHalf::All,
-        (true, true, false) => FullToHalf::AsciiAndDigits,
-        (true, false, true) => FullToHalf::AsciiAndKana,
-        (true, false, false) => FullToHalf::Ascii,
-        (false, true, true) => FullToHalf::DigitsAndKana,
-        (false, true, false) => FullToHalf::Digits,
-        _ => FullToHalf::Kana,
-    };
-    let table = conv_type.to_table();
-
-    convert(text, table, option)
+    let method = Method::FullToHalf(Target::from(&option));
+    convert(text, method, &option.ignore)
 }
 
 /// Replace strings before convert
@@ -179,17 +162,13 @@ fn before_convert(text: &str, convert: Vec<(&str, &str)>) -> String {
 }
 
 /// Convert strings refers conversion table and option settings
-fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> String {
-    let ignore = option
-        .ignore
-        .chars()
-        .map(|c| c as u32)
-        .collect::<Vec<u32>>();
+fn convert(text: &str, method: Method, ignore: &str) -> String {
+    let ignore = ignore.chars().map(|c| c as u32).collect::<Vec<u32>>();
     let mut converted = Vec::new();
 
     for c in text.chars() {
         let ord = c as u32;
-        match table.get(&ord) {
+        match method.table().get(&ord) {
             Some(s) if !ignore.contains(&ord) => converted.push(s.to_string()),
             _ => converted.push(c.to_string()),
         }
