@@ -183,7 +183,6 @@ fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> Strin
     let ignore = option
         .ignore
         .chars()
-        .into_iter()
         .map(|c| c as u32)
         .collect::<Vec<u32>>();
     let mut converted = Vec::new();
@@ -196,7 +195,7 @@ fn convert(text: &str, table: HashMap<u32, String>, option: ConvOption) -> Strin
         }
     }
 
-    converted.join("").to_string()
+    converted.join("")
 }
 
 #[cfg(test)]
