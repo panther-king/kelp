@@ -3,15 +3,7 @@ use std::collections::HashMap;
 use std::vec::Vec;
 
 use crate::conv_table::{FullToHalf, HalfToFull, HiraKana, MAP_KANA};
-
-/// Convert options
-#[derive(Debug, Default)]
-pub struct ConvOption {
-    pub ascii: bool,
-    pub digit: bool,
-    pub ignore: String,
-    pub kana: bool,
-}
+use crate::ConvOption;
 
 /// Convert from hiragana to full-witdh katakana
 ///

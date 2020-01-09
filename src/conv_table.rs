@@ -2,6 +2,8 @@
 use std::collections::HashMap;
 use std::vec::Vec;
 
+use crate::ConvOption;
+
 /// ASCII(full-width)
 pub(crate) const FULL_ASCII: [&str; 85] = [
     "！", "＂", "＃", "＄", "％", "＆", "＇", "（", "）", "＊", "＋", "，", "－", "．", "／", "：",
