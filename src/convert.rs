@@ -1,4 +1,5 @@
 //! Functions which convert strings.
+use std::collections::HashMap;
 use std::vec::Vec;
 
 use crate::conv_table::{Method, Target, MAP_KANA};
@@ -27,7 +28,7 @@ use crate::ConvOption;
 /// ```
 pub fn hira2kata(text: &str, option: ConvOption) -> String {
     let method = Method::HiraToKana;
-    convert(text, method, &option.ignore)
+    convert(text, method.table(), &option.ignore)
 }
 
 /// Convert from hiragana to half-width katakana
@@ -53,7 +54,7 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
 /// ```
 pub fn hira2hkata(text: &str, option: ConvOption) -> String {
     let method = Method::HiraToHalfKana;
-    convert(text, method, &option.ignore)
+    convert(text, method.table(), &option.ignore)
 }
 
 /// Convert from full-width katakana to hiragana
@@ -79,7 +80,7 @@ pub fn hira2hkata(text: &str, option: ConvOption) -> String {
 /// ```
 pub fn kata2hira(text: &str, option: ConvOption) -> String {
     let method = Method::KanaToHira;
-    convert(text, method, &option.ignore)
+    convert(text, method.table(), &option.ignore)
 }
 
 /// Convert from half-width to full-width
@@ -113,11 +114,11 @@ pub fn h2z(text: &str, option: ConvOption) -> String {
     if option.kana {
         convert(
             &before_convert(text, MAP_KANA.to_vec()),
-            method,
+            method.table(),
             &option.ignore,
         )
     } else {
-        convert(text, method, &option.ignore)
+        convert(text, method.table(), &option.ignore)
     }
 }
 
@@ -149,7 +150,7 @@ pub fn h2z(text: &str, option: ConvOption) -> String {
 /// ```
 pub fn z2h(text: &str, option: ConvOption) -> String {
     let method = Method::FullToHalf(Target::from(&option));
-    convert(text, method, &option.ignore)
+    convert(text, method.table(), &option.ignore)
 }
 
 /// Replace strings before convert
@@ -162,19 +163,19 @@ fn before_convert(text: &str, convert: Vec<(&str, &str)>) -> String {
 }
 
 /// Convert strings refers conversion table and option settings
-fn convert(text: &str, method: Method, ignore: &str) -> String {
+fn convert(text: &str, table: HashMap<u32, String>, ignore: &str) -> String {
     let ignore = ignore.chars().map(|c| c as u32).collect::<Vec<u32>>();
-    let mut converted = Vec::new();
 
-    for c in text.chars() {
-        let ord = c as u32;
-        match method.table().get(&ord) {
-            Some(s) if !ignore.contains(&ord) => converted.push(s.to_string()),
-            _ => converted.push(c.to_string()),
-        }
-    }
-
-    converted.join("")
+    text.chars()
+        .map(|c| {
+            let ord = c as u32;
+            match table.get(&ord) {
+                Some(s) if !ignore.contains(&ord) => s.to_string(),
+                _ => c.to_string(),
+            }
+        })
+        .collect::<Vec<String>>()
+        .join("")
 }
 
 #[cfg(test)]
