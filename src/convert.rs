@@ -156,15 +156,15 @@ pub fn z2h(text: &str, option: ConvOption) -> String {
 /// Replace strings before convert
 fn before_convert(text: &str, convert: Vec<(&str, &str)>) -> String {
     let mut converted = text.to_string();
-    for (before, after) in convert.into_iter() {
-        converted = converted.replace(before, after);
-    }
+    convert
+        .iter()
+        .for_each(|(b, a)| converted = converted.replace(b, a));
     converted
 }
 
 /// Convert strings refers conversion table and option settings
 fn convert(text: &str, table: HashMap<u32, String>, ignore: &str) -> String {
-    let ignore = ignore.chars().map(|c| c as u32).collect::<Vec<u32>>();
+    let ignore = ignore.chars().map(|c| c as u32).collect::<Vec<_>>();
 
     text.chars()
         .map(|c| {
