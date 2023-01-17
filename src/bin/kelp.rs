@@ -71,32 +71,32 @@ fn main() {
         )
         .arg(
             Arg::with_name("convert")
-                .short("c")
+                .short('c')
                 .long("conv")
                 .takes_value(true)
                 .help("Specified conversion pattern"),
         )
         .arg(
             Arg::with_name("ascii")
-                .short("a")
+                .short('a')
                 .long("ascii")
                 .help("Convert with ascii if specified"),
         )
         .arg(
             Arg::with_name("digit")
-                .short("d")
+                .short('d')
                 .long("digit")
                 .help("Convert with digit if specified"),
         )
         .arg(
             Arg::with_name("kana")
-                .short("k")
+                .short('k')
                 .long("kana")
                 .help("Convert with kana if specified"),
         )
         .arg(
             Arg::with_name("ignore")
-                .short("i")
+                .short('i')
                 .long("ignore")
                 .takes_value(true)
                 .help("Specified ignore characters"),
