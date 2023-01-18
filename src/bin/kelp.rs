@@ -61,7 +61,7 @@ use kelp::ConvOption;
 
 fn main() {
     let matches = App::new("kelp")
-        .version("0.1")
+        .version("0.4")
         .author("Taro Yamashita <taro.ymst@gmail.com>")
         .about("A conversion tool of Japanese")
         .arg(

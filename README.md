@@ -26,7 +26,7 @@ Add `kelp` as a dependency in your `Cargo.toml`
 
 ```toml
 [dependencies]
-kelp = "0.3"
+kelp = "0.4"
 ```
 
 Quick Example
