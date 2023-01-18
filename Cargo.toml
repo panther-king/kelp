@@ -11,7 +11,7 @@ description = "A convert tool for Japanese."
 documentation = "https://panther-king.github.io/kelp/kelp/"
 
 [dependencies]
-clap = "2"
+clap = "3"
 
 [[bin]]
 name = "kelp-cli"
