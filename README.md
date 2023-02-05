@@ -1,7 +1,7 @@
 kelp
 ====
 
-[![Build Status](https://travis-ci.org/panther-king/kelp.svg?branch=master)](https://travis-ci.org/panther-king/kelp) [![Crates.io](https://img.shields.io/crates/v/kelp.svg)](https://crates.io/crates/kelp) [![Crates.io](https://img.shields.io/crates/d/kelp.svg)](https://crates.io/crates/kelp) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/panther-king/kelp/blob/master/LICENSE)
+[![CI](https://github.com/panther-king/kelp/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/panther-king/kelp/actions/workflows/test.yml) [![Crates.io](https://img.shields.io/crates/v/kelp.svg)](https://crates.io/crates/kelp) [![Crates.io](https://img.shields.io/crates/d/kelp.svg)](https://crates.io/crates/kelp) [![license](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/panther-king/kelp/blob/master/LICENSE)
 
 Convert tool for Japanese.
 
