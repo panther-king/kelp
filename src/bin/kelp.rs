@@ -51,7 +51,7 @@
 extern crate clap;
 extern crate kelp;
 
-use clap::{App, Arg};
+use clap::Parser;
 use kelp::h2z;
 use kelp::hira2hkata;
 use kelp::hira2kata;
@@ -59,64 +59,49 @@ use kelp::kata2hira;
 use kelp::z2h;
 use kelp::ConvOption;
 
+/// A conversion tool of Japanese
+#[derive(Debug, Parser)]
+#[command(version, about)]
+struct Args {
+    /// Specified conversion pattern
+    #[arg(short, long)]
+    conv: String,
+
+    /// Convert with ascii if specified
+    #[arg(short, long)]
+    ascii: bool,
+
+    /// Convert with digit if specified
+    #[arg(short, long)]
+    digit: bool,
+
+    /// Convert with kana if specified
+    #[arg(short, long)]
+    kana: bool,
+
+    /// Specified ignore charcters
+    #[arg(short, long)]
+    ignore: Option<String>,
+
+    text: Option<String>,
+}
+
 fn main() {
-    let matches = App::new("kelp")
-        .version("0.1")
-        .author("Taro Yamashita <taro.ymst@gmail.com>")
-        .about("A conversion tool of Japanese")
-        .arg(
-            Arg::with_name("INPUT")
-                .required(true)
-                .help("A text that you want to convert"),
-        )
-        .arg(
-            Arg::with_name("convert")
-                .short("c")
-                .long("conv")
-                .takes_value(true)
-                .help("Specified conversion pattern"),
-        )
-        .arg(
-            Arg::with_name("ascii")
-                .short("a")
-                .long("ascii")
-                .help("Convert with ascii if specified"),
-        )
-        .arg(
-            Arg::with_name("digit")
-                .short("d")
-                .long("digit")
-                .help("Convert with digit if specified"),
-        )
-        .arg(
-            Arg::with_name("kana")
-                .short("k")
-                .long("kana")
-                .help("Convert with kana if specified"),
-        )
-        .arg(
-            Arg::with_name("ignore")
-                .short("i")
-                .long("ignore")
-                .takes_value(true)
-                .help("Specified ignore characters"),
-        )
-        .get_matches();
-
+    let args = Args::parse();
     let option = ConvOption {
-        ascii: matches.is_present("ascii"),
-        digit: matches.is_present("digit"),
-        ignore: matches.value_of("ignore").unwrap_or("").to_string(),
-        kana: matches.is_present("digit"),
+        ascii: args.ascii,
+        digit: args.digit,
+        ignore: args.ignore.unwrap_or("".to_string()),
+        kana: args.kana,
     };
-    let text = matches.value_of("INPUT").unwrap();
+    let text = args.text.as_deref().unwrap_or("");
 
-    let converted = match matches.value_of("convert") {
-        Some(s) if s == "h2z" => h2z(text, option),
-        Some(s) if s == "h2hk" => hira2hkata(text, option),
-        Some(s) if s == "h2k" => hira2kata(text, option),
-        Some(s) if s == "k2h" => kata2hira(text, option),
-        Some(s) if s == "z2h" => z2h(text, option),
+    let converted = match args.conv.as_str() {
+        "h2z" => h2z(text, option),
+        "h2hk" => hira2hkata(text, option),
+        "h2k" => hira2kata(text, option),
+        "k2h" => kata2hira(text, option),
+        "z2h" => z2h(text, option),
         _ => text.to_string(),
     };
 
