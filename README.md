@@ -24,6 +24,10 @@ Usage
 
 Add `kelp` as a dependency in your `Cargo.toml`
 
+```shell
+cargo add kelp
+```
+
 ```toml
 [dependencies]
 kelp = "0.4"
