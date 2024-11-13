@@ -88,10 +88,14 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+    let ignore: &'static str = match args.ignore.as_deref() {
+        Some("") | None => "",
+        Some(s) => Box::leak(s.to_string().into_boxed_str()),
+    };
     let option = ConvOption {
         ascii: args.ascii,
         digit: args.digit,
-        ignore: args.ignore.unwrap_or("".to_string()),
+        ignore: ignore,
         kana: args.kana,
     };
     let text = args.text.as_deref().unwrap_or("");
