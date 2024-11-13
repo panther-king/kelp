@@ -11,10 +11,10 @@ pub use convert::kata2hira;
 pub use convert::z2h;
 
 /// Convert options
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct ConvOption {
     pub ascii: bool,
     pub digit: bool,
-    pub ignore: String,
+    pub ignore: &'static str,
     pub kana: bool,
 }
