@@ -20,7 +20,7 @@ use crate::ConvOption;
 /// assert_eq!("アイウエオ", converted);
 ///
 /// let option = ConvOption {
-///     ignore: "かこ".to_string(),
+///     ignore: "かこ",
 ///     ..Default::default()
 /// };
 /// let converted = hira2kata("かきくけこ", option);
@@ -46,7 +46,7 @@ pub fn hira2kata(text: &str, option: ConvOption) -> String {
 /// assert_eq!("ｱｲｳｴｵ", converted);
 ///
 /// let option = ConvOption {
-///     ignore: "がご".to_string(),
+///     ignore: "がご",
 ///     ..Default::default()
 /// };
 /// let converted = hira2hkata("がぎぐげご", option);
@@ -72,7 +72,7 @@ pub fn hira2hkata(text: &str, option: ConvOption) -> String {
 /// assert_eq!("あいうえお", converted);
 ///
 /// let option = ConvOption {
-///     ignore: "キクケ".to_string(),
+///     ignore: "キクケ",
 ///     ..Default::default()
 /// };
 /// let converted = kata2hira("カキクケコ", option);
@@ -104,7 +104,7 @@ pub fn kata2hira(text: &str, option: ConvOption) -> String {
 ///     ascii: true,
 ///     digit: true,
 ///     kana: true,
-///     ignore: "Aｱ0".to_string(),
+///     ignore: "Aｱ0",
 /// };
 /// let converted = h2z("ABCｱｲｳ012", option);
 /// assert_eq!("AＢＣｱイウ0１２", converted);
@@ -142,7 +142,7 @@ pub fn h2z(text: &str, option: ConvOption) -> String {
 /// let option = ConvOption {
 ///     ascii: true,
 ///     digit: true,
-///     ignore: "Ａア０".to_string(),
+///     ignore: "Ａア０",
 ///     kana: true,
 /// };
 /// let converted = z2h("ＡＢＣアイウ０１２", option);
@@ -207,7 +207,7 @@ mod tests {
     fn test_hira2kata_with_ignore() {
         let before = strings!(HIRAGANA);
         let option = ConvOption {
-            ignore: before.clone(),
+            ignore: &before,
             ..Default::default()
         };
         assert_eq!(hira2kata(&before, option), before);
@@ -227,7 +227,7 @@ mod tests {
     fn test_hira2hkata_with_ignore() {
         let before = strings!(HIRAGANA);
         let option = ConvOption {
-            ignore: before.clone(),
+            ignore: &before,
             ..Default::default()
         };
         assert_eq!(hira2hkata(&before, option), before);
@@ -247,7 +247,7 @@ mod tests {
     fn test_kata2hira_with_ignore() {
         let before = strings!(FULL_KANA);
         let option = ConvOption {
-            ignore: before.clone(),
+            ignore: &before,
             ..Default::default()
         };
         assert_eq!(kata2hira(&before, option), before);

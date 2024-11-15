@@ -209,7 +209,7 @@ pub(crate) enum Target {
     Kana,
 }
 
-impl From<&ConvOption> for Target {
+impl From<&ConvOption<'_>> for Target {
     fn from(option: &ConvOption) -> Target {
         match (option.ascii, option.digit, option.kana) {
             (true, true, true) => All,

@@ -12,9 +12,9 @@ pub use convert::z2h;
 
 /// Convert options
 #[derive(Debug, Default, Clone, Copy)]
-pub struct ConvOption {
+pub struct ConvOption<'a> {
     pub ascii: bool,
     pub digit: bool,
-    pub ignore: &'static str,
+    pub ignore: &'a str,
     pub kana: bool,
 }

@@ -88,7 +88,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let ignore: &'static str = match args.ignore.as_deref() {
+    let ignore: &str = match args.ignore.as_deref() {
         Some("") | None => "",
         Some(s) => Box::leak(s.to_string().into_boxed_str()),
     };
