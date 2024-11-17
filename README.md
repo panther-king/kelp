@@ -30,7 +30,7 @@ cargo add kelp
 
 ```toml
 [dependencies]
-kelp = "0.5"
+kelp = "0.6"
 ```
 
 Quick Example
